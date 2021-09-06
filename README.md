@@ -20,5 +20,5 @@ U##se        : process input .txt files into generated .html files.
 
 9. generate one .html output file for each input file
    NOTE       : the original txt file(s) should not be modified
-10. need to deal with marking-up paragraphs: every blank line should be considered a paragraph limit and the text transformed into <p>...</p>.
+10. need to deal with marking-up paragraphs: every blank line should be considered a paragraph limit and the text transformed into <p>
 11. your tool should place all output into a ./dist folder by default
