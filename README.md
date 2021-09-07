@@ -13,7 +13,7 @@ U##se        : process input .txt files into generated .html files.
 
 ##TODO NEXT  :
 
-5. choose programming language - DECIDE
+5. choose programming language - DECIDE (javascript)
 
 6. running the tool with --version or -v flag will print the tool's name and current version
 
