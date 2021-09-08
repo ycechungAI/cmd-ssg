@@ -19,7 +19,7 @@ program.version('0.1')
 program
   .option('-v, --version', 'version 0.1')
   .option('-h, --help', 'help for cmd-svg')
-  .option('-f, --file <file>', 'specify input file or folder')
+  .option('-i, --input <input>', 'specify input file or folder')
 
 //styles
 const boxenOptions = {
@@ -45,8 +45,8 @@ const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --hel
     //yargs 
     var { argv } = require('yargs')
         .help()
-        .option('f', {
-          alias: 'file',
+        .option('i', {
+          alias: 'input',
           demandOption: true,
           default: '.',
           describe: "specify input file or folder",
@@ -65,41 +65,59 @@ const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --hel
     if (options.version) console.log(verMsg)
     if (options.help) console.log(msgHelp)
     //yargs
-    if (options.file){
-      if(/\w+.txt/.test(options.file)){ // ends in .txt which means its a file
-        if(options.file.path){
+
+    //files
+    let files = [];
+    if (options.input){
+      if(/\w+.txt/.test(options.input)){ // ends in .txt which means its a file
+        if(options.input.path){
           try {
-            process.chdir(options.file.path);
+            process.chdir(options.input.path);
+            files[0] = options.input;
           }catch(err){
-            console.log("Invalid directory");  
+            console.log("Invalid file");  
           }
         }
-      }else{
+        console.log(`Read file -> ${options.input}`);
+      }else{ //folder
         try {
-          process.chdir(options.file);
+          process.chdir(options.input);
+          
+          //if(fs.lstatSync(options.file).isDirectory()){
+            let i = 0;
+            for( f in fs.readdirSync(options.input)){
+              files[i] = f
+              i++
+            };
+            console.log(files)
+          //}
         }catch(err){
           console.log("Invalid directory");  
         }
+        console.log(`Read folder -> ${options.input}`);
       }
-      console.log(`Read file -> ${options.file}`);
+     
       process.stdin.resume();
       
       //do the magic of converting txt to 
-      fs.readFile(options.file, 'utf8', (err, data)=>{
-        if(err){
-          console.error(err)
-          return
-        }
-        let prefix = "<!doctype html><html><head><meta charset='utf-8'><title>Converted HTML</title></head><body>"
-        let bodyT =  '<p>'.concat(data.replace(/\r{1,}/g, '</p><br><p>')).concat('</p>');
-        let suffix = "</body></html>"
-      
-        //console.log(prefix + bodyT + suffix); 
-        fs.writeFile(outputfolder + "index.html", prefix + bodyT + suffix, "utf8", function(err){
-          if (err) return console.log(err);
-          console.log(`${options.file} > ${outputfolder}index.html`);
+      let j = 0
+      for(file in files){
+        fs.readFile(options.file, 'utf8', (err, data)=>{
+          if(err){
+            console.error(err)
+            return
+          }
+          let prefix = "<!doctype html><html><head><meta charset='utf-8'><title>Converted HTML</title></head><body>"
+          let bodyT =  '<p>'.concat(data.replace(/\r{1,}/g, '</p><br><p>')).concat('</p>');
+          let suffix = "</body></html>"
+          //console.log(prefix + bodyT + suffix); 
+        
+          fs.writeFile(outputfolder + file[j], prefix + bodyT + suffix, "utf8", function(err){
+            if (err) return console.log(err);
+            console.log(`${files[j]} > ${outputfolder}${/(.*)\.[^.]+$/.test(files[j]).html}`)
+          })
         })
-      })
+      }
 
       //exit
       process.exit;
