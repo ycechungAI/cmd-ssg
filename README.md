@@ -10,14 +10,11 @@ U##se        : process input .txt files into generated .html files.
 2. github repo created
 3. MIT license chosen
 4. create README.md - keep it updated as you write your code, documenting how to use your tool, which features you include, etc. Your README file should tell users how to use your tool.
+5. choose Javascript/Node.js language
+6. running the tool with --version or -v flag will print the tool's name and current version
+7. running the tool with --help or -h flag should print standard help/usage message also showing how to run the tool, which command line flags and arguments can be used, etc.
 
 ##TODO NEXT  :
-
-5. choose programming language - DECIDE (javascript)
-
-6. running the tool with --version or -v flag will print the tool's name and current version
-
-7. running the tool with --help or -h flag should print standard help/usage message also showing how to run the tool, which command line flags and arguments can be used, etc.
 
 8. specify input file or folder with --input or -i
 
