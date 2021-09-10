@@ -65,7 +65,22 @@ const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --hel
     if (options.version) console.log(verMsg)
     if (options.help) console.log(msgHelp)
     //yargs
-
+    //check if input is file or folder and if it exists
+    function checkInput(input) {
+        if (fs.existsSync(input)) {
+            if (fs.statSync(input).isDirectory()) {
+                console.log(chalk.green("input is a folder"))
+                return true;
+            } else {
+                console.log(chalk.green("input is a file"))
+                return true;
+            }
+        } else {
+            console.log(chalk.red("input does not exist"))
+            return false;
+        }
+    }
+  
     //files
     let files = [];
     if (options.input){
@@ -80,6 +95,20 @@ const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --hel
         }
         console.log(`Read file -> ${options.input}`);
       }else{ //folder
+          if(options.input.path){
+            try {
+              process.chdir(options.input.path);
+              files = fs.readdirSync(options.input);
+            }catch(err){
+              console.log("Invalid folder");  
+            }
+          }
+          console.log(`Read folder -> ${options.input}`);
+        }
+      }else{ //no input given
+        console.log("No input given");
+      
+        /* OLD CODE
         try {
           process.chdir(options.input);
           
@@ -95,11 +124,12 @@ const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --hel
           console.log("Invalid directory");  
         }
         console.log(`Read folder -> ${options.input}`);
+        */
       }
      
       process.stdin.resume();
       
-      //do the magic of converting txt to 
+      //do the magic of converting txt to html
       let j = 0
       for(file in files){
         fs.readFile(options.file, 'utf8', (err, data)=>{
@@ -113,15 +143,28 @@ const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --hel
           //console.log(prefix + bodyT + suffix); 
         
           fs.writeFile(outputfolder + file[j], prefix + bodyT + suffix, "utf8", function(err){
+            if(err){
+              console.log(err)
+              return
+            }
+            console.log(`${file[j]} converted`)
+          })
+        })
+      }
+  /* old code
             if (err) return console.log(err);
             console.log(`${files[j]} > ${outputfolder}${/(.*)\.[^.]+$/.test(files[j]).html}`)
           })
         })
       }
-
+  */
       //exit
       process.exit;
-      /*
+*/
+  
+  //============================================XXX
+  //============================================
+  /*
       rl.question("What is the directory? ", function(directory){
         console.log(directory)
         currentdir = directory;
