@@ -84,7 +84,7 @@
   "author": "Eugene Chung",
   "license": "MIT",
   "bin": {
-    "ssg": "node bin/index.js"
+    "ssgy": "./bin/index.js"
   },
   "bugs": {
     "url": "https://github.com/ycechungAI/cmd-ssg/issues"
