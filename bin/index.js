@@ -67,8 +67,31 @@ var { argv } = require('yargs')
   } else {
     //yargs
     //check if input is file or folder and if it exists
+    //files
+    let files = [];
     function checkInput(input) {
       if (fs.existsSync(input)) {
+        if(/\w+.txt/.test(input)){ // ends in .txt which means its a file
+          console.log("file check");
+          if(fs.statSync(input).isFile){
+            process.chdir(input.path);
+            files[0] = input;
+          }else{
+            console.log("Invalid file");  
+          }
+          
+          console.log(`Read file -> ${input}`);
+        }else{ //folder
+          console.log("folder check");
+          if (fs.statSync(input).isDirectory() == true){
+            files = fs.readdirSync(input);
+          }else{
+            console.log("Invalid folder");  
+          }
+          console.log(`Read folder -> ${input}`);
+        }
+
+         /*
           if (fs.statSync(input).isDirectory()) {
               console.log(chalk.green("input is a folder"))
               return true;
@@ -76,62 +99,41 @@ var { argv } = require('yargs')
               console.log(chalk.green("input is a file"))
               return true;
           }
+         */
+          return true;
       } else {
           console.log(chalk.red("input does not exist"))
           return false;
+
       }
     }
-    
-    //files
-    let files = [];
-    if (options.input){
-      if(/\w+.txt/.test(options.input)){ // ends in .txt which means its a file
-        if(options.input.path){
-          try {
-            process.chdir(options.input.path);
-            files[0] = options.input;
-          }catch(err){
-            console.log("Invalid file");  
-          }
-        }
-        console.log(`Read file -> ${options.input}`);
-      }else{ //folder
-        if(options.input.path){
-          try {
-            process.chdir(options.input.path);
-            files = fs.readdirSync(options.input);
-          }catch(err){
-            console.log("Invalid folder");  
-          }
-        }
-          console.log(`Read folder -> ${options.input}`);
-      }
-    }else{ //no input given
-      console.log("No input given"); 
-      process.stdin.resume();
-        
+    console.log(options.input);
+    test = checkInput(options.input);
+    if ( test == true){
       //do the magic of converting txt to html
-      let j = 0
+      console.log(`TESTX > ${files[0]}`);
+      let j = 0;
       for(file in files){
-        fs.readFile(options.file, 'utf8', (err, data)=>{
-        if(err){
-          console.error(err)
-          return
-        }
-        let prefix = "<!doctype html><html><head><meta charset='utf-8'><title>Converted HTML</title></head><body>"
-        let bodyT =  '<p>'.concat(data.replace(/\r{1,}/g, '</p><br><p>')).concat('</p>');
-        let suffix = "</body></html>"
-        //console.log(prefix + bodyT + suffix); 
-          
-        fs.writeFile(outputfolder + file[j], prefix + bodyT + suffix, "utf8", function(err){
+        fs.readFile(file, 'utf8', (err, data)=>{
           if(err){
-            console.log(err)
-            return
+            console.error(err)
           }
-            console.log(`${file[j]} converted`)
-          })
-        })
+          let prefix = "<!doctype html><html><head><meta charset='utf-8'><title>Converted HTML</title></head><body>"
+          let bodyT =  '<p>'.concat(data.replace(/\r{1,}/g, '</p><br><p>')).concat('</p>');
+          let suffix = "</body></html>"
+          console.log(prefix + bodyT + suffix);     
+          fs.writeFile(outputfolder.concat(file[j]), prefix + bodyT + suffix, "utf8", function(err){
+            if(err){
+              console.log(err)
+            }else{
+              console.log(`${file[j]} converted`)
+            }
+            
+          });
+        });
       }
+    }else { //no input given
+      process.stdin.resume();
     }
     //exit
     process.exit;
