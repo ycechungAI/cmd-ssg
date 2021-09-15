@@ -176,7 +176,7 @@ var { argv } = require('yargs')
 
     //Add to the array routesList to generate <a> in index.html
     routesList.push({
-      url: createdFileName.replace(path.normalize(outputPath), '').substr(1).replaceAll(' ', '_'),,
+      url: createdFileName.replace(path.normalize(outputPath), '').substr(1).replaceAll(' ', '_'),
       name: path.basename(createdFileName, '.html'),
     });
     await createIndexHtmlFile(routesList, stylesheet, outputPath);
@@ -226,11 +226,11 @@ var { argv } = require('yargs')
 
       //Add to the array routesList to generate <a> in index.html
       routesList.push({
-        url: /^\\|\//.test(
+        url: (/^\\|\//.test(
           createdFileName.replace(path.normalize(outputPath), '')[0],
         )
           ? createdFileName.replace(path.normalize(outputPath), '').substr(1)
-          : createdFileName.replace(path.normalize(outputPath), ''),
+          : createdFileName.replace(path.normalize(outputPath), '')).replaceAll(' ', '_').replaceAll('\\', '/'),
         name: path.basename(createdFileName, '.html'),
       });
     }
@@ -241,7 +241,7 @@ var { argv } = require('yargs')
   const treatData = (data) => {
     let dataTreated = { title: '', content: '' };
     //convert data into an array
-    data = data.split('\n').map((sentence) => sentence.replace('\r', ''));
+    data = data.split('\n').map((sentence) => sentence.replace('\r', '').replaceAll(' ', '_'));
 
     if (data.length >= 3) {
       //Check if title exist
@@ -265,10 +265,12 @@ var { argv } = require('yargs')
   program.parse(process.argv);
   //console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
   const options = program.opts()
-  if(options.version){
-    console.log(verMsg)
-  } else if (options.help) {
-    console.log(msgHelp)
+  if(process.argv[2] == "-v" || process.argv[2] == "--version"){
+    console.log(verMsg);
+    process.abort;
+  } else if (process.argv[2] == "-h" || process.argv[2] == "--help") {
+    console.log(msgHelp);
+    process.abort;
   } else {
     //yargs
     //check if input is file or folder and if it exists
@@ -311,12 +313,12 @@ var { argv } = require('yargs')
           };
           files = fs.readdirSync(input);
         }else{
-            throw new Error(chalk.red("Invalid folder or file"));  
+            throw new Error("Invalid folder or file");  
         }
         console.log(`Read folder -> ${input}`);
         return true;
       } else {
-        throw new error(chalk.red("input does not exist"))
+        throw new error("input does not exist");
         return false;
       }
     }
@@ -328,7 +330,7 @@ var { argv } = require('yargs')
       convertToHtml( process.argv[3], options.stylesheet, outputFolder, isFile);
     }else { //no input given
       throw new error(chalk.red("No .txt files"));
-      process.stdin.resume();
+      //process.stdin.resume();
     }
     //exit
     process.exit;
