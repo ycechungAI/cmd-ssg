@@ -1,24 +1,31 @@
 #!/usr/bin/env node
+const fs = require('fs');
+const version = require('../package.json').version;
 const chalk = require('chalk');
 const clear = require('clear');
 const boxen = require("boxen");
 const figlet = require('figlet');
-const fs = require('fs');
 let process = require('process');
 const path = require('path');
 const readline = require("readline");
+
+//open source by Kevan Yang
+const generateHTML = require('../generateHtmlTemplate');
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
-let currentdir = path.dirname
-let outputfolder = "dist/"
+let isFile;
+let inputPaths = './'
+let outputFolder = "./dist"
+
 //commander
 const { program } = require('commander');
 program.version('0.1');
 program.option('-v, --version', 'version 0.1');
 program.option('-h, --help', 'help for cmd-svg');
 program.option('-i, --input <input>', 'specify input file or folder');
+program.option('-s, --stylesheet <input>', 'specify a stylesheet file');
 //styles
 const boxenOptions = {
     padding: 1,
@@ -30,7 +37,7 @@ const boxenOptions = {
 
 //message variables
 const versionMsg = chalk.white.bold(`${program.version}\n`);
-const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --help     list options \n -v, --version  program version \n -f, --file     specify input file or folder\n");
+const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
 
 
 //clear screen
@@ -49,16 +56,213 @@ var { argv } = require('yargs')
       default: '.',
       describe: "specify input file or folder",
       type: 'string'
-  }).argv;
+    })
+    .option('s', {
+      alias: 'stylesheet',
+      demandOption: true,
+      default: '.',
+      describe: "specify stylesheet",
+      type: 'string'
+    }).argv;
+  
   
   const verMsg = boxen( versionMsg, boxenOptions );
   const msgHelp = boxen( helpMsg, boxenOptions);
   
+  // readFile
+
+  const readFile = (filepath) => {
+    return new Promise((resolve, reject) => {
+      fs.readFile(filepath, 'utf-8', (error, content) =>{
+        if (error != null){
+          reject(error);
+          return;
+        }
+        resolve(content);
+      });
+    });
+  };
+
+  // createHTML
+  const createHtmlFile = async (fileName, data, stylesheet = '', outputPath) => {
+  let htmlOption = {
+    ...treatData(data),
+    style: stylesheet,
+  };
   
-  
+  await fs.promises.writeFile(
+    path.join(`${outputPath}`, `${fileName}.html`),
+    generateHTML.generateHtmlTemplate(htmlOption),
+    (err) => {
+      if (err) throw new Error(err);
+    },
+  );
+    console.log(`File created -> ${path.join(`${outputFolder}`, `${fileName}.html`)}`);
+    return path.join(`${outputPath}`, `${fileName}.html`);
+    
+  };
+
+  //createHtmlFile generateHTML file
+
+  const createIndexHtmlFile = async (routeList, stylesheet = '', outputPath) => {
+  let htmlOption = {
+    routeList,
+    style: stylesheet,
+  };
+
+  //Create a new html file
+  await fs.promises.writeFile(
+    path.join(`${outputPath}`, `index.html`),
+    generateHTML.generateHtmlMenuTemplate(htmlOption),
+    (err) => {
+      if (err) throw new Error(err);
+    },
+  );
+  console.log(`File created -> ${path.join(`${outputPath}`, `index.html`)}`);
+  };
+
+  // get all files
+  const getAllFiles = async (dirPath, filesPathList) => {
+  const files = await fs.promises.readdir(dirPath);
+  filesPathList ||= [];
+
+  for (const file of files) {
+    const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
+    if (fileLstat.isDirectory()) {
+      filesPathList = await getAllFiles(
+        path.join(dirPath, file),
+        filesPathList,
+      );
+    } else {
+      if (path.extname(file) === '.txt')
+        filesPathList.push(path.join(dirPath, file));
+    }
+  }
+
+  return filesPathList;
+  };
+  const convertToHtml = async (
+  inputPaths,
+  stylesheet = '',
+  outputPath,
+  isFile,
+  ) => {
+  let routesList = [];
+  //Check if ./dist folder exist
+  //Remove if exist
+  if (fs.existsSync('./dist') && outputPath === './dist') {
+    await fs.promises.rm('./dist', { force: true, recursive: true }, (err) => {
+      if (err) throw new Error(err);
+    });
+  }
+  if (outputPath === './dist')
+    //Create a new folder call ./dist
+    await fs.promises.mkdir('./dist', { recursive: true }, (err) => {
+      if (err) throw new Error(err);
+    });
+
+  if (isFile) {
+    //Read file data
+    const data = await readFile(inputPaths);
+
+    //Create the html file
+    let createdFileName = await createHtmlFile(
+      path.basename(inputPaths, '.txt'),
+      data,
+      stylesheet,
+      outputPath,
+    );
+
+    //Add to the array routesList to generate <a> in index.html
+    routesList.push({
+      url: createdFileName.replace(path.normalize(outputPath), '').substr(1),
+      name: path.basename(createdFileName, '.html'),
+    });
+    await createIndexHtmlFile(routesList, stylesheet, outputPath);
+  } else {
+    //Get allFiles
+    const filesPathList = [];
+    await getAllFiles(inputPaths, filesPathList);
+
+    const listFolderPath = [];
+    //Remove root folder and removes duplicates
+    for (let filePath of filesPathList) {
+      filePath = filePath.split(/\\|\//);
+      filePath.shift();
+      filePath = filePath.join('/');
+      if (!listFolderPath.includes(path.dirname(filePath))) {
+        listFolderPath.push(path.dirname(filePath));
+      }
+    }
+
+    //Create folder
+    for (let dir of listFolderPath) {
+      await fs.promises.mkdir(
+        path.join(outputPath, dir),
+        { recursive: true },
+        (err) => {
+          if (err) throw new Error(err);
+        },
+      );
+    }
+
+    for (let filePath of filesPathList) {
+      //Read file data
+      const data = await readFile(filePath);
+
+      //Remove root folder
+      filePath = filePath.split(/\\|\//);
+      filePath.shift();
+      const noRootFilePath = filePath.join('/');
+
+      //Create the html file
+      let createdFileName = await createHtmlFile(
+        path.basename(noRootFilePath, '.txt'),
+        data,
+        stylesheet,
+        path.join(outputPath, path.dirname(noRootFilePath)),
+      );
+
+      //Add to the array routesList to generate <a> in index.html
+      routesList.push({
+        url: /^\\|\//.test(
+          createdFileName.replace(path.normalize(outputPath), '')[0],
+        )
+          ? createdFileName.replace(path.normalize(outputPath), '').substr(1)
+          : createdFileName.replace(path.normalize(outputPath), ''),
+        name: path.basename(createdFileName, '.html'),
+      });
+    }
+    await createIndexHtmlFile(routesList, stylesheet, outputPath);
+  }
+  };
+
+  const treatData = (data) => {
+    let dataTreated = { title: '', content: '' };
+    //convert data into an array
+    data = data.split('\n').map((sentence) => sentence.replace('\r', ''));
+
+    if (data.length >= 3) {
+      //Check if title exist
+      if (data[0] && !data[1] && !data[2]) {
+        dataTreated.title = data[0];
+        data = data.slice(3);
+      }
+  }
+
+  //Remove empty array and combine sentence together
+  data.forEach((phase, i) => {
+    if (!phase) data[i] = '_space_';
+  });
+  data = data.join('').split('_space_');
+  dataTreated.content = data;
+
+  return dataTreated;
+  };
+
   //commander code
   program.parse(process.argv);
-  
+  //console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
   const options = program.opts()
   if(options.version){
     console.log(verMsg)
@@ -72,68 +276,61 @@ var { argv } = require('yargs')
     function checkInput(input) {
       if (fs.existsSync(input)) {
         if(/\w+.txt/.test(input)){ // ends in .txt which means its a file
-          console.log("file check");
-          if(fs.statSync(input).isFile){
-            process.chdir(input.path);
-            files[0] = input;
-          }else{
-            console.log("Invalid file");  
+         // console.log("file check");
+          if(fs.lstatSync(input).isFile){
+            if (path.extname(input) === '.txt'){
+              isFile = true;
+              return true
+            }else{
+              throw new Error("File must be a .txt file");
+            }
           }
           
-          console.log(`Read file -> ${input}`);
-        }else{ //folder
-          console.log("folder check");
-          if (fs.statSync(input).isDirectory() == true){
-            files = fs.readdirSync(input);
-          }else{
-            console.log("Invalid folder");  
-          }
-          console.log(`Read folder -> ${input}`);
+          //console.log(`Read file -> ${input}`);
+        }else if (fs.statSync(input).isDirectory() == true){
+          //console.log("folder check");
+          const checkTxtFile = (folderpath) =>{
+            const dirContents = fs.readdirSync(dirpath);
+            for (const contents of dirContents){
+              const dirContentLstat = fs.lstatSync(
+                path.join(dirpath, contents),
+              )
+
+              if (dirContentLstat.isDirectory()){
+                if(checkTextFile(path.join(dirpath, content))){
+                  return true;
+                }
+              } else {
+                if (path.extname(content) === '.txt'){
+                  return true;
+                }
+              }
+            }
+            return false;
+          };
+          files = fs.readdirSync(input);
+        }else{
+            throw new Error(chalk.red("Invalid folder or file"));  
         }
-
-         /*
-          if (fs.statSync(input).isDirectory()) {
-              console.log(chalk.green("input is a folder"))
-              return true;
-          } else {
-              console.log(chalk.green("input is a file"))
-              return true;
-          }
-         */
-          return true;
+        console.log(`Read folder -> ${input}`);
+        return true;
       } else {
-          console.log(chalk.red("input does not exist"))
-          return false;
-
+        throw new error(chalk.red("input does not exist"))
+        return false;
       }
     }
-    console.log(options.input);
+    //console.log(`options.input -> ${options.input}`);
     test = checkInput(options.input);
     if ( test == true){
       //do the magic of converting txt to html
-      console.log(`TESTX > ${files[0]}`);
-      let j = 0;
-      for(file in files){
-        fs.readFile(file, 'utf8', (err, data)=>{
-          if(err){
-            console.error(err)
-          }
-          let prefix = "<!doctype html><html><head><meta charset='utf-8'><title>Converted HTML</title></head><body>"
-          let bodyT =  '<p>'.concat(data.replace(/\r{1,}/g, '</p><br><p>')).concat('</p>');
-          let suffix = "</body></html>"
-          console.log(prefix + bodyT + suffix);     
-          fs.writeFile(outputfolder.concat(file[j]), prefix + bodyT + suffix, "utf8", function(err){
-            if(err){
-              console.log(err)
-            }else{
-              console.log(`${file[j]} converted`)
-            }
-            
-          });
-        });
-      }
+      console.log(`  running >>>`);
+      //console.log(`i -> ${process.argv[3]}`);
+	    //console.log(`s -> ${options.stylesheet}`);
+	    //console.log(`o -> ${outputFolder}`);
+      convertToHtml( process.argv[3], options.stylesheet, outputFolder, isFile);
     }else { //no input given
-      process.stdin.resume();
+      throw new error(chalk.red("No .txt files"));
+      //process.stdin.resume();
     }
     //exit
     process.exit;
