@@ -37,7 +37,7 @@ const boxenOptions = {
 
 //message variables
 const versionMsg = chalk.white.bold(`${program.version}\n`);
-const helpMsg = chalk.white.bold("HELP\n----------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
+const helpMsg = chalk.white.bold("HELP\n-------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
 
 
 //clear screen

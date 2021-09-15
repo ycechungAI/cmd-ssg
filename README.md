@@ -31,6 +31,9 @@ ssgy <command option>
 11. your tool should place all output into a ./dist folder by default
 
 Bonus:
-## TODO NEXT  :
-12. adding -s stylesheet option
-13. making it easy on the eyes =)
+12. input can be deep within the files such as .\test\test2\
+
+## TODO & ONGOING  :
+13. adding -s stylesheet option
+14. parse a title from your input files
+15. making it easy on the eyes =)  checkout my cmd-ssg -h
