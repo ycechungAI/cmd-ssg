@@ -9,8 +9,9 @@ let process = require('process');
 const path = require('path');
 const readline = require("readline");
 
-//open source by Kevan Yang
+//**open source by Kevan Yang
 const generateHTML = require('../generateHtmlTemplate');
+//**
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -89,15 +90,15 @@ var { argv } = require('yargs')
     ...treatData(data),
     style: stylesheet,
   };
-  
+  const underscoreFileName = fileName.replaceAll(' ', '_');
   await fs.promises.writeFile(
-    path.join(`${outputPath}`, `${fileName}.html`),
+    path.join(`${outputPath}`, `${underscoreFileName}.html`),
     generateHTML.generateHtmlTemplate(htmlOption),
     (err) => {
       if (err) throw new Error(err);
     },
   );
-    console.log(`File created -> ${path.join(`${outputFolder}`, `${fileName}.html`)}`);
+    console.log(`File created -> ${path.join(`${outputFolder}`, `${underscoreFileName}.html`)}`);
     return path.join(`${outputPath}`, `${fileName}.html`);
     
   };
@@ -175,7 +176,7 @@ var { argv } = require('yargs')
 
     //Add to the array routesList to generate <a> in index.html
     routesList.push({
-      url: createdFileName.replace(path.normalize(outputPath), '').substr(1),
+      url: createdFileName.replace(path.normalize(outputPath), '').substr(1).replaceAll(' ', '_'),,
       name: path.basename(createdFileName, '.html'),
     });
     await createIndexHtmlFile(routesList, stylesheet, outputPath);
@@ -198,7 +199,7 @@ var { argv } = require('yargs')
     //Create folder
     for (let dir of listFolderPath) {
       await fs.promises.mkdir(
-        path.join(outputPath, dir),
+        path.join(outputPath, dir).replaceAll(' ', '_'),
         { recursive: true },
         (err) => {
           if (err) throw new Error(err);
@@ -220,7 +221,7 @@ var { argv } = require('yargs')
         path.basename(noRootFilePath, '.txt'),
         data,
         stylesheet,
-        path.join(outputPath, path.dirname(noRootFilePath)),
+        path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(' ', '_'),
       );
 
       //Add to the array routesList to generate <a> in index.html
@@ -324,13 +325,10 @@ var { argv } = require('yargs')
     if ( test == true){
       //do the magic of converting txt to html
       console.log(`  running >>>`);
-      //console.log(`i -> ${process.argv[3]}`);
-	    //console.log(`s -> ${options.stylesheet}`);
-	    //console.log(`o -> ${outputFolder}`);
       convertToHtml( process.argv[3], options.stylesheet, outputFolder, isFile);
     }else { //no input given
       throw new error(chalk.red("No .txt files"));
-      //process.stdin.resume();
+      process.stdin.resume();
     }
     //exit
     process.exit;
