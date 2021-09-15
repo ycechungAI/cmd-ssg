@@ -6,7 +6,7 @@ deliverable 0.1 for OSD600 open source course at seneca
    Use        : process input .txt files into generated .html files.
 
 ## Screen Shot 
-<img src="https://ibb.co/Mp4Sg61"
+<img src="https://i.ibb.co/VDZ9LmC/cmd-ssg-img1.png"
      alt="Program running -h"
      style="float: left; margin-right: 10px;" />
 
