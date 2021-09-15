@@ -267,10 +267,10 @@ var { argv } = require('yargs')
   const options = program.opts()
   if(process.argv[2] == "-v" || process.argv[2] == "--version"){
     console.log(verMsg);
-    process.abort;
+    process.exit(1);
   } else if (process.argv[2] == "-h" || process.argv[2] == "--help") {
     console.log(msgHelp);
-    process.abort;
+    process.exit(1);
   } else {
     //yargs
     //check if input is file or folder and if it exists
@@ -333,5 +333,5 @@ var { argv } = require('yargs')
       //process.stdin.resume();
     }
     //exit
-    process.exit;
+    process.exit(1);
 }
