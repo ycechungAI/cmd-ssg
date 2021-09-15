@@ -1,10 +1,11 @@
 # cmd-ssg
-deliverable 0.1 for OSD600 open source course at seneca
+Deliverable 0.1 for OSD600 Open Source course at seneca
 
-## Description: command-line-static site tool 
-##VERSION    : 0.01
+## Description: command-line-static site tool
+```
+## VERSION    : 0.1
    Use        : process input .txt files into generated .html files.
-
+```
 ## Screen Shot 
 <img src="https://i.ibb.co/VDZ9LmC/cmd-ssg-img1.png"
      alt="Program running -h"
@@ -12,8 +13,12 @@ deliverable 0.1 for OSD600 open source course at seneca
 
 ## How to Use
 ```
+git clone <this repo>
 npm install -g .
 ssgy <command option>
+
+Example:
+ssgy -i ./examples
 ```
 
 ## DONE       :
@@ -32,8 +37,12 @@ ssgy <command option>
 
 Bonus:
 12. input can be deep within the files such as .\test\test2\
-
+13  parse a title from input files
+   
 ## TODO & ONGOING  :
-13. adding -s stylesheet option
-14. parse a title from your input files
-15. making it easy on the eyes =)  checkout my cmd-ssg -h
+14. adding -s stylesheet option
+15. making it easy on the eyes =)
+   
+   
+QA Contributor: Kevin Yang 
+Author: Eugene Chung
