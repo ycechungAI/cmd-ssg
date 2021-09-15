@@ -3,10 +3,18 @@ deliverable 0.1 for OSD600 open source course at seneca
 
 ## Description: command-line-static site tool 
 ##VERSION    : 0.01
-U##se        : process input .txt files into generated .html files.
+   Use        : process input .txt files into generated .html files.
 
 ## Screen Shot 
-https://ibb.co/Mp4Sg61
+<img src="https://ibb.co/Mp4Sg61"
+     alt="Program running -h"
+     style="float: left; margin-right: 10px;" />
+
+## How to Use
+```
+npm install -g .
+ssgy <command option>
+```
 
 ## DONE       :
 1. cmd-ssg
