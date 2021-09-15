@@ -43,6 +43,7 @@ Bonus:
 14. adding -s stylesheet option
 15. making it easy on the eyes =)
    
-   
+```   
 QA Contributor: Kevin Yang 
-Author: Eugene Chung
+Author        : Eugene Chung
+```
