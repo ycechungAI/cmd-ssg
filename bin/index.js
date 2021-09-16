@@ -37,7 +37,7 @@ const boxenOptions = {
 
 //message variables
 const versionMsg = chalk.white.bold(`${program.version}\n`);
-const helpMsg = chalk.white.bold("HELP\n-------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
+const helpMsg = chalk.white.bold("HELP\n----------------------------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
 
 
 //clear screen
@@ -175,7 +175,7 @@ var { argv } = require('yargs')
 
     //Add to the array routesList to generate <a> in index.html
     routesList.push({
-      url: createdFileName.replace(path.normalize(outputPath), '').substr(1),
+      url: createdFileName.replace(path.normalize(outputPath), '').substr(1).replaceAll(' ', '_'),
       name: path.basename(createdFileName, '.html'),
     });
     await createIndexHtmlFile(routesList, stylesheet, outputPath);
@@ -228,8 +228,8 @@ var { argv } = require('yargs')
         url: /^\\|\//.test(
           createdFileName.replace(path.normalize(outputPath), '')[0],
         )
-          ? createdFileName.replace(path.normalize(outputPath), '').substr(1)
-          : createdFileName.replace(path.normalize(outputPath), ''),
+          ? createdFileName.replace(path.normalize(outputPath), '').substr(1).replace(' ', '_')
+          : createdFileName.replace(path.normalize(outputPath), '').replace(' ', '_'),
         name: path.basename(createdFileName, '.html'),
       });
     }
@@ -265,9 +265,13 @@ var { argv } = require('yargs')
   //console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
   const options = program.opts()
   if(options.version){
-    console.log(verMsg)
+    console.log(verMsg);
+    //exit
+    process.exit(1);
   } else if (options.help) {
-    console.log(msgHelp)
+    console.log(msgHelp);
+    //exit
+    process.exit(1);
   } else {
     //yargs
     //check if input is file or folder and if it exists
@@ -331,7 +335,7 @@ var { argv } = require('yargs')
     }else { //no input given
       throw new error(chalk.red("No .txt files"));
       //process.stdin.resume();
+      process.resume();
+      process.exit(0);
     }
-    //exit
-    process.exit;
 }
