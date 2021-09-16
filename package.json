@@ -91,5 +91,11 @@
   "bugs": {
     "url": "https://github.com/ycechungAI/cmd-ssg/issues"
   },
+  "pkg":{
+    "scripts":"generateHtmlTemplate.js",
+    "assets": "",
+    "targets": ["node16-arm64-win"],
+    "outputPath": "dist"
+  },
   "homepage": "https://github.com/ycechungAI/cmd-ssg#readme"
 }
