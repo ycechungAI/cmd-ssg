@@ -94,7 +94,7 @@
   "pkg":{
     "scripts":"generateHtmlTemplate.js",
     "assets": "",
-    "targets": ["node16-arm64-win"],
+    "targets": ["node16-win32"],
     "outputPath": "dist"
   },
   "homepage": "https://github.com/ycechungAI/cmd-ssg#readme"
