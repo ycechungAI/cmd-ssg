@@ -176,8 +176,8 @@ var { argv } = require('yargs')
 
     //Add to the array routesList to generate <a> in index.html
     routesList.push({
-      url: createdFileName.replace(path.normalize(outputPath), '').substr(1).replaceAll(' ', '_'),
-      name: path.basename(createdFileName, '.html'),
+      url: createdFileName.replaceAll(' ', '_').replace(path.normalize(outputPath), '').substr(1),
+      name: path.basename(createdFileName.replaceAll(' ', '_'), '.html'),
     });
     await createIndexHtmlFile(routesList, stylesheet, outputPath);
   } else {
@@ -218,7 +218,7 @@ var { argv } = require('yargs')
 
       //Create the html file
       let createdFileName = await createHtmlFile(
-        path.basename(noRootFilePath, '.txt'),
+        path.basename(noRootFilePath, '.txt').replaceAll(' ', '_'),
         data,
         stylesheet,
         path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(' ', '_'),
