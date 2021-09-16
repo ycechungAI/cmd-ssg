@@ -38,7 +38,7 @@ const boxenOptions = {
 
 //message variables
 const versionMsg = chalk.white.bold(`${program.version}\n`);
-const helpMsg = chalk.white.bold("HELP\n-------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
+const helpMsg = chalk.white.bold("HELP\n----------------------------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
 
 
 //clear screen
@@ -265,11 +265,13 @@ var { argv } = require('yargs')
   program.parse(process.argv);
   //console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
   const options = program.opts()
-  if(process.argv[2] == "-v" || process.argv[2] == "--version"){
+  if(options.version){
     console.log(verMsg);
+    //exit
     process.exit(1);
-  } else if (process.argv[2] == "-h" || process.argv[2] == "--help") {
+  } else if (options.help) {
     console.log(msgHelp);
+    //exit
     process.exit(1);
   } else {
     //yargs
@@ -331,7 +333,7 @@ var { argv } = require('yargs')
     }else { //no input given
       throw new error(chalk.red("No .txt files"));
       //process.stdin.resume();
+      process.resume();
+      process.exit(0);
     }
-    //exit
-    process.exit(1);
 }
