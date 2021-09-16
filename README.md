@@ -42,6 +42,7 @@ Bonus:
 ## TODO & ONGOING  :
 14. adding -s stylesheet option
 15. making it easy on the eyes =)  checkout my cmd-ssg -h
-   
+```
 Special Thanks: Kevan Yang
 Author        : Eugene Chung
+```
