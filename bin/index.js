@@ -9,8 +9,9 @@ let process = require('process');
 const path = require('path');
 const readline = require("readline");
 
-//open source by Kevan Yang
+//**open source by Kevan Yang
 const generateHTML = require('../generateHtmlTemplate');
+//**
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -89,15 +90,15 @@ var { argv } = require('yargs')
     ...treatData(data),
     style: stylesheet,
   };
-  
+  const underscoreFileName = fileName.replaceAll(' ', '_');
   await fs.promises.writeFile(
-    path.join(`${outputPath}`, `${fileName}.html`),
+    path.join(`${outputPath}`, `${underscoreFileName}.html`),
     generateHTML.generateHtmlTemplate(htmlOption),
     (err) => {
       if (err) throw new Error(err);
     },
   );
-    console.log(`File created -> ${path.join(`${outputFolder}`, `${fileName}.html`)}`);
+    console.log(`File created -> ${path.join(`${outputFolder}`, `${underscoreFileName}.html`)}`);
     return path.join(`${outputPath}`, `${fileName}.html`);
     
   };
@@ -198,7 +199,7 @@ var { argv } = require('yargs')
     //Create folder
     for (let dir of listFolderPath) {
       await fs.promises.mkdir(
-        path.join(outputPath, dir),
+        path.join(outputPath, dir).replaceAll(' ', '_'),
         { recursive: true },
         (err) => {
           if (err) throw new Error(err);
@@ -220,16 +221,16 @@ var { argv } = require('yargs')
         path.basename(noRootFilePath, '.txt'),
         data,
         stylesheet,
-        path.join(outputPath, path.dirname(noRootFilePath)),
+        path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(' ', '_'),
       );
 
       //Add to the array routesList to generate <a> in index.html
       routesList.push({
-        url: /^\\|\//.test(
+        url: (/^\\|\//.test(
           createdFileName.replace(path.normalize(outputPath), '')[0],
         )
-          ? createdFileName.replace(path.normalize(outputPath), '').substr(1).replace(' ', '_')
-          : createdFileName.replace(path.normalize(outputPath), '').replace(' ', '_'),
+          ? createdFileName.replace(path.normalize(outputPath), '').substr(1)
+          : createdFileName.replace(path.normalize(outputPath), '')).replaceAll(' ', '_').replaceAll('\\', '/'),
         name: path.basename(createdFileName, '.html'),
       });
     }
@@ -240,7 +241,7 @@ var { argv } = require('yargs')
   const treatData = (data) => {
     let dataTreated = { title: '', content: '' };
     //convert data into an array
-    data = data.split('\n').map((sentence) => sentence.replace('\r', ''));
+    data = data.split('\n').map((sentence) => sentence.replace('\r', '').replaceAll(' ', '_'));
 
     if (data.length >= 3) {
       //Check if title exist
@@ -314,12 +315,12 @@ var { argv } = require('yargs')
           };
           files = fs.readdirSync(input);
         }else{
-            throw new Error(chalk.red("Invalid folder or file"));  
+            throw new Error("Invalid folder or file");  
         }
         console.log(`Read folder -> ${input}`);
         return true;
       } else {
-        throw new error(chalk.red("input does not exist"))
+        throw new error("input does not exist");
         return false;
       }
     }
@@ -328,9 +329,6 @@ var { argv } = require('yargs')
     if ( test == true){
       //do the magic of converting txt to html
       console.log(`  running >>>`);
-      //console.log(`i -> ${process.argv[3]}`);
-	    //console.log(`s -> ${options.stylesheet}`);
-	    //console.log(`o -> ${outputFolder}`);
       convertToHtml( process.argv[3], options.stylesheet, outputFolder, isFile);
     }else { //no input given
       throw new error(chalk.red("No .txt files"));
