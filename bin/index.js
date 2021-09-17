@@ -230,7 +230,7 @@ var { argv } = require('yargs')
           createdFileName.replace(path.normalize(outputPath), '')[0],
         )
           ? createdFileName.replace(path.normalize(outputPath), '').substr(1)
-          : createdFileName.replace(path.normalize(outputPath), '')).replaceAll(' ', '_').replaceAll('\\', '/'),
+          : createdFileName.replace(path.normalize(outputPath), '')).replaceAll('\\', '/'),
         name: path.basename(createdFileName, '.html'),
       });
     }
@@ -252,8 +252,9 @@ var { argv } = require('yargs')
   }
 
   //Remove empty array and combine sentence together
-  data.forEach((phase, i) => {
-    if (!phase) data[i] = '_space_';
+  data.forEach((phrase, i) => {
+    data[i] = data[i] + ' ';
+    if (!phrase) data[i] = '_space_';
   });
   data = data.join('').split('_space_');
   dataTreated.content = data;
@@ -281,7 +282,6 @@ var { argv } = require('yargs')
     function checkInput(input) {
       if (fs.existsSync(input)) {
         if(/\w+.txt/.test(input)){ // ends in .txt which means its a file
-         // console.log("file check");
           if(fs.lstatSync(input).isFile){
             if (path.extname(input) === '.txt'){
               isFile = true;
@@ -291,9 +291,7 @@ var { argv } = require('yargs')
             }
           }
           
-          //console.log(`Read file -> ${input}`);
         }else if (fs.statSync(input).isDirectory() == true){
-          //console.log("folder check");
           const checkTxtFile = (folderpath) =>{
             const dirContents = fs.readdirSync(dirpath);
             for (const contents of dirContents){
@@ -324,7 +322,6 @@ var { argv } = require('yargs')
         return false;
       }
     }
-    //console.log(`options.input -> ${options.input}`);
     test = checkInput(options.input);
     if ( test == true){
       //do the magic of converting txt to html
@@ -332,7 +329,6 @@ var { argv } = require('yargs')
       convertToHtml( process.argv[3], options.stylesheet, outputFolder, isFile);
     }else { //no input given
       throw new error(chalk.red("No .txt files"));
-      //process.stdin.resume();
       process.resume();
       process.exit(0);
     }
