@@ -241,7 +241,7 @@ var { argv } = require('yargs')
   const treatData = (data) => {
     let dataTreated = { title: '', content: '' };
     //convert data into an array
-    data = data.split('\n').map((sentence) => sentence.replace('\r', '').replaceAll(' ', '_'));
+    data = data.split('\n').map((sentence) => sentence.replace('\r', ''));
 
     if (data.length >= 3) {
       //Check if title exist
