@@ -10,10 +10,8 @@
     "clear": "^0.1.0",
     "cli-boxes": "^2.2.1",
     "commander": "^8.1.0",
-    "eslint": "^7.32.0",
     "fastify": "^3.21.3",
     "figlet": "^1.5.2",
-    "prettier": "^2.4.0",
     "y18n": "^4.0.3",
     "yargs": "^13.2.4",
     "yargs-parser": "^13.1.2"
@@ -45,5 +43,11 @@
     ],
     "outputPath": "dist"
   },
-  "homepage": "https://github.com/ycechungAI/cmd-ssg#readme"
+  "homepage": "https://github.com/ycechungAI/cmd-ssg#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.31.2",
+    "@typescript-eslint/parser": "^4.31.2",
+    "eslint": "^7.32.0",
+    "prettier": "2.4.1"
+  }
 }
