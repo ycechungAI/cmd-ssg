@@ -6,6 +6,12 @@ deliverable 0.1 for OSD600 open source course at seneca
   VERSION    : 0.1.0
   Use        : Process input .txt files into generated .html files.
 ```
+
+## Prerequiste for development
+```
+   node version 16
+```
+
 ## Screen Shot 
 <img src="https://i.ibb.co/VDZ9LmC/cmd-ssg-img1.png"
      alt="Program running -h"
@@ -21,7 +27,7 @@ Example:
 ssgy -i examples
 ```
 
-## DONE       :
+## FEATURES :
 1. cmd-ssg
 2. github repo created
 3. MIT license chosen
@@ -34,15 +40,12 @@ ssgy -i examples
    NOTE       : the original txt file(s) should not be modified
 10. need to deal with marking-up paragraphs: every blank line should be considered a paragraph limit and the text transformed into <p>
 11. your tool should place all output into a ./dist folder by default
-
-Bonus:
 12. input can be deep within the files such as .\test\test2\
 13. parse a title from your input files
-
-## TODO & ONGOING  :
 14. adding -s stylesheet option
 15. making it easy on the eyes =)  checkout my cmd-ssg -h
 ```
-Special Thanks: Kevan Yang
-Author        : Eugene Chung
+Special Thanks  : Kevan Yang
+Markdown Feature: Oliver Pham
+Author          : Eugene Chung
 ```
