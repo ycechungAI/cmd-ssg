@@ -124,117 +124,117 @@ var { argv } = require('yargs')
 
     // get all files
     const getAllFiles = async (dirPath, filesPathList) => {
-    const files = await fs.promises.readdir(dirPath);
-    filesPathList ||= [];
+      const files = await fs.promises.readdir(dirPath);
+      filesPathList ||= [];
 
-    for (const file of files) {
-      const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
-      if (fileLstat.isDirectory()) {
-        filesPathList = await getAllFiles(
-          path.join(dirPath, file),
-          filesPathList,
-        );
-      } else {
-        if (path.extname(file) === '.txt')
-          filesPathList.push(path.join(dirPath, file));
+      for (const file of files) {
+        const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
+        if (fileLstat.isDirectory()) {
+          filesPathList = await getAllFiles(
+            path.join(dirPath, file),
+            filesPathList,
+          );
+        } else {
+          if (path.extname(file) === '.txt')
+            filesPathList.push(path.join(dirPath, file));
+        }
       }
-    }
-    return filesPathList;
-  };
-  const convertToHtml = async (
-  inputPaths,
-  stylesheet = '',
-  outputPath,
-  isFile,
-  ) => {
-  let routesList = [];
-  //Check if ./dist folder exist
-  //Remove if exist
-  if (fs.existsSync('./dist') && outputPath === './dist') {
-    await fs.promises.rm('./dist', { force: true, recursive: true }, (err) => {
-      if (err) throw new Error(err);
-    });
-  }
-  if (outputPath === './dist')
+      return filesPathList;
+    };
+    const convertToHtml = async (
+      inputPaths,
+      stylesheet = '',
+      outputPath,
+      isFile,
+      ) => {
+      let routesList = [];
+      //Check if ./dist folder exist
+      //Remove if exist
+      if (fs.existsSync('./dist') && outputPath === './dist') {
+        await fs.promises.rm('./dist', { force: true, recursive: true }, (err) => {
+          if (err) throw new Error(err);
+        });
+      }
+    if (outputPath === './dist')
     //Create a new folder call ./dist
     await fs.promises.mkdir('./dist', { recursive: true }, (err) => {
       if (err) throw new Error(err);
     });
 
-  if (isFile) {
-    //Read file data
-    const data = await readFile(inputPaths);
-
-    //Create the html file
-    let createdFileName = await createHtmlFile(
-      path.basename(inputPaths, '.txt'),
-      data,
-      stylesheet,
-      outputPath,
-    );
-
-    //Add to the array routesList to generate <a> in index.html
-    routesList.push({
-      url: createdFileName.replaceAll(' ', '_').replace(path.normalize(outputPath), '').substr(1),
-      name: path.basename(createdFileName.replaceAll(' ', '_'), '.html'),
-    });
-    await createIndexHtmlFile(routesList, stylesheet, outputPath);
-  } else {
-    //Get allFiles
-    const filesPathList = [];
-    await getAllFiles(inputPaths, filesPathList);
-
-    const listFolderPath = [];
-    //Remove root folder and removes duplicates
-    for (let filePath of filesPathList) {
-      filePath = filePath.split(/\\|\//);
-      filePath.shift();
-      filePath = filePath.join('/');
-      if (!listFolderPath.includes(path.dirname(filePath))) {
-        listFolderPath.push(path.dirname(filePath));
-      }
-    }
-
-    //Create folder
-    for (let dir of listFolderPath) {
-      await fs.promises.mkdir(
-        path.join(outputPath, dir).replaceAll(' ', '_'),
-        { recursive: true },
-        (err) => {
-          if (err) throw new Error(err);
-        },
-      );
-    }
-
-    for (let filePath of filesPathList) {
+    if (isFile) {
       //Read file data
-      const data = await readFile(filePath);
-
-      //Remove root folder
-      filePath = filePath.split(/\\|\//);
-      filePath.shift();
-      const noRootFilePath = filePath.join('/');
+      const data = await readFile(inputPaths);
 
       //Create the html file
       let createdFileName = await createHtmlFile(
-        path.basename(noRootFilePath, '.txt').replaceAll(' ', '_'),
+        path.basename(inputPaths, '.txt'),
         data,
         stylesheet,
-        path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(' ', '_'),
+        outputPath,
       );
 
       //Add to the array routesList to generate <a> in index.html
       routesList.push({
-        url: (/^\\|\//.test(
-          createdFileName.replace(path.normalize(outputPath), '')[0],
-        )
-          ? createdFileName.replace(path.normalize(outputPath), '').substr(1)
-          : createdFileName.replace(path.normalize(outputPath), '')).replaceAll('\\', '/'),
-        name: path.basename(createdFileName, '.html'),
+        url: createdFileName.replaceAll(' ', '_').replace(path.normalize(outputPath), '').substr(1),
+        name: path.basename(createdFileName.replaceAll(' ', '_'), '.html'),
       });
+      await createIndexHtmlFile(routesList, stylesheet, outputPath);
+    } else {
+      //Get allFiles
+      const filesPathList = [];
+      await getAllFiles(inputPaths, filesPathList);
+
+      const listFolderPath = [];
+      //Remove root folder and removes duplicates
+      for (let filePath of filesPathList) {
+        filePath = filePath.split(/\\|\//);
+        filePath.shift();
+        filePath = filePath.join('/');
+        if (!listFolderPath.includes(path.dirname(filePath))) {
+          listFolderPath.push(path.dirname(filePath));
+        }
+      }
+
+      //Create folder
+      for (let dir of listFolderPath) {
+        await fs.promises.mkdir(
+          path.join(outputPath, dir).replaceAll(' ', '_'),
+          { recursive: true },
+          (err) => {
+            if (err) throw new Error(err);
+          },
+        );
+      }
+
+      for (let filePath of filesPathList) {
+        //Read file data
+        const data = await readFile(filePath);
+
+        //Remove root folder
+        filePath = filePath.split(/\\|\//);
+        filePath.shift();
+        const noRootFilePath = filePath.join('/');
+
+        //Create the html file
+        let createdFileName = await createHtmlFile(
+          path.basename(noRootFilePath, '.txt').replaceAll(' ', '_'),
+          data,
+          stylesheet,
+          path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(' ', '_'),
+        );
+
+        //Add to the array routesList to generate <a> in index.html
+        routesList.push({
+          url: (/^\\|\//.test(
+            createdFileName.replace(path.normalize(outputPath), '')[0],
+          )
+            ? createdFileName.replace(path.normalize(outputPath), '').substr(1)
+            : createdFileName.replace(path.normalize(outputPath), '')).replaceAll('\\', '/'),
+          name: path.basename(createdFileName, '.html'),
+        });
+      }
+      await createIndexHtmlFile(routesList, stylesheet, outputPath);
     }
-    await createIndexHtmlFile(routesList, stylesheet, outputPath);
-  }
   };
 
   const treatData = (data) => {
@@ -331,4 +331,4 @@ var { argv } = require('yargs')
       process.resume();
       process.exit(0);
     }
-}
+ }
