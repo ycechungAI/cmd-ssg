@@ -1,5 +1,9 @@
 {
   "name": "cmd-ssg",
+  "engines": {
+    "node": ">=16.9.1",
+    "npm": ">=7.23.0"
+  },
   "version": "0.1.0",
   "description": "cli .txt to html converter",
   "main": "./bin/index.js",
