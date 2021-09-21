@@ -12,6 +12,7 @@ const path = require("path");
 
 //**open source by Kevan Yang
 const generateHTML = require("../generateHtmlTemplate");
+const supportedExtensions = ['.txt', '.md'];
 let isFile;
 let inputPaths = "./";
 let outputFolder = "./dist";
@@ -63,6 +64,14 @@ var { argv } = require("yargs")
 
 const verMsg = boxen(versionMsg, boxenOptions);
 const msgHelp = boxen(helpMsg, boxenOptions);
+
+const isFileSupported = (extension) => {
+  return supportedExtensions.includes(extension);
+}
+
+const getFileName = (filepath) => {
+  return path.basename(filepath).split('.')[0];
+}
 
 // readFile
 
@@ -133,7 +142,7 @@ const getAllFiles = async (dirPath, filesPathList) => {
         filesPathList
       );
     } else {
-      if (path.extname(file) === ".txt")
+      if (isFileSupported(path.extname(file)))
         filesPathList.push(path.join(dirPath, file));
     }
   }
@@ -165,7 +174,7 @@ const convertToHtml = async (
 
     //Create the html file
     let createdFileName = await createHtmlFile(
-      path.basename(inputPaths, ".txt"),
+      getFileName(inputPaths),
       data,
       stylesheet,
       outputPath
@@ -218,7 +227,7 @@ const convertToHtml = async (
 
       //Create the html file
       let createdFileName = await createHtmlFile(
-        path.basename(noRootFilePath, ".txt").replaceAll(" ", "_"),
+        getFileName(noRootFilePath),
         data,
         stylesheet,
         path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(" ", "_")
@@ -264,17 +273,15 @@ const treatData = (data) => {
 };
 function checkInput(input) {
   if (fs.existsSync(input)) {
-    if (/\w+.txt/.test(input)) {
-      // ends in .txt which means its a file
-      if (fs.lstatSync(input).isFile) {
-        if (path.extname(input) === ".txt") {
-          isFile = true;
-          return true;
-        } else {
-          throw new Error("File must be a .txt file");
-        }
+    const filepath = fs.lstatSync(input);
+    if (filepath.isFile()) {
+      if (isFileSupported(path.extname(input))) {
+        isFile = true;
+        return true;
+      } else {
+        throw new Error("File type is not supported");
       }
-    } else if (fs.statSync(input).isDirectory() == true) {
+    } else if (filepath.isDirectory()) {
       const checkTxtFile = (folderpath) => {
         const dirContents = fs.readdirSync(dirpath);
         for (const contents of dirContents) {
@@ -326,7 +333,7 @@ if (options.version) {
   } else {
     //no input given
     process.exit(0);
-    throw new error(chalk.red("No .txt files"));
+    throw new error(chalk.red("No supported files"));
     
   }
 }
