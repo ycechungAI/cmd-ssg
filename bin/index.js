@@ -106,41 +106,40 @@ var { argv } = require('yargs')
   //createHtmlFile generateHTML file
 
   const createIndexHtmlFile = async (routeList, stylesheet = '', outputPath) => {
-  let htmlOption = {
-    routeList,
-    style: stylesheet,
-  };
+    let htmlOption = {
+      routeList,
+      style: stylesheet,
+    };
 
-  //Create a new html file
-  await fs.promises.writeFile(
-    path.join(`${outputPath}`, `index.html`),
-    generateHTML.generateHtmlMenuTemplate(htmlOption),
-    (err) => {
-      if (err) throw new Error(err);
-    },
-  );
-  console.log(`File created -> ${path.join(`${outputPath}`, `index.html`)}`);
-  };
+    //Create a new html file
+    await fs.promises.writeFile(
+      path.join(`${outputPath}`, `index.html`),
+      generateHTML.generateHtmlMenuTemplate(htmlOption),
+      (err) => {
+        if (err) throw new Error(err);
+      },
+    );
+    console.log(`File created -> ${path.join(`${outputPath}`, `index.html`)}`);
+    };
 
-  // get all files
-  const getAllFiles = async (dirPath, filesPathList) => {
-  const files = await fs.promises.readdir(dirPath);
-  filesPathList ||= [];
+    // get all files
+    const getAllFiles = async (dirPath, filesPathList) => {
+    const files = await fs.promises.readdir(dirPath);
+    filesPathList ||= [];
 
-  for (const file of files) {
-    const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
-    if (fileLstat.isDirectory()) {
-      filesPathList = await getAllFiles(
-        path.join(dirPath, file),
-        filesPathList,
-      );
-    } else {
-      if (path.extname(file) === '.txt')
-        filesPathList.push(path.join(dirPath, file));
+    for (const file of files) {
+      const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
+      if (fileLstat.isDirectory()) {
+        filesPathList = await getAllFiles(
+          path.join(dirPath, file),
+          filesPathList,
+        );
+      } else {
+        if (path.extname(file) === '.txt')
+          filesPathList.push(path.join(dirPath, file));
+      }
     }
-  }
-
-  return filesPathList;
+    return filesPathList;
   };
   const convertToHtml = async (
   inputPaths,
