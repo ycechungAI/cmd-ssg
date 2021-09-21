@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-undef */
+const fs = require("fs");
 const chalk = require("chalk");
 const clear = require("clear");
 const boxen = require("boxen");
