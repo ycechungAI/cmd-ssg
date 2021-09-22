@@ -69,10 +69,6 @@ const isFileSupported = (extension) => {
   return supportedExtensions.includes(extension);
 }
 
-const getFileName = (filepath) => {
-  return path.basename(filepath).split('.')[0];
-}
-
 // readFile
 
 const readFile = (filepath) => {
@@ -88,10 +84,20 @@ const readFile = (filepath) => {
 };
 
 // createHTML
-const createHtmlFile = async (fileName, data, stylesheet = "", outputPath) => {
+const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
+  const fileName = basename.split('.')[0];
+  let dataTreated = { title: "", content: "" };
+
+  if (path.extname(basename) === '.md') {
+    dataTreated = treatMarkdownData(data);
+  }
+  else if (path.extname(basename) === '.txt') {
+    dataTreated = treatData(data);
+  }
   let htmlOption = {
-    ...treatData(data),
+    ...dataTreated,
     style: stylesheet,
+    fileExtname: path.extname(basename), 
   };
   const underscoreFileName = fileName.replaceAll(" ", "_");
   await fs.promises.writeFile(
@@ -174,7 +180,7 @@ const convertToHtml = async (
 
     //Create the html file
     let createdFileName = await createHtmlFile(
-      getFileName(inputPaths),
+      path.basename(inputPaths),
       data,
       stylesheet,
       outputPath
@@ -227,7 +233,7 @@ const convertToHtml = async (
 
       //Create the html file
       let createdFileName = await createHtmlFile(
-        getFileName(noRootFilePath),
+        path.basename(noRootFilePath),
         data,
         stylesheet,
         path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(" ", "_")
@@ -247,6 +253,10 @@ const convertToHtml = async (
     await createIndexHtmlFile(routesList, stylesheet, outputPath);
   }
 };
+
+const treatMarkdownData = (data) => {
+  return { title: "", content: data.split(/\r?\n/).filter((line) => line) };
+}
 
 const treatData = (data) => {
   let dataTreated = { title: "", content: "" };
