@@ -15,8 +15,7 @@ deliverable 0.1 for OSD600 open source course at seneca
    "node": ">=16.9.1",
    "npm": ">=7.23.0"
 
-   run npm install chalk if you run into package errors
-```
+   ```
 
 ## Screen Shot
 
@@ -28,11 +27,17 @@ deliverable 0.1 for OSD600 open source course at seneca
 
 ```
 git clone <this repo>
-npm install -g .
+   Linux: npm install
+          sudo npm install -g .
+   Windows: npm install
+            npm install -g .
+   Macs:  <not fully supported>
+
 ssgy <command option>
 
-Example:
-ssgy -i examples
+   Example:
+      [x] ssgy -i examples
+      [x] ssgy -i examples/md -s sample_css/new.css
 ```
 
 ## FEATURES :
@@ -57,8 +62,14 @@ ssgy -i examples
    - [x] Parse Heading syntax
    - [x] Parse Italics & Bold syntax
 
+# Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 ```
 Special Thanks  : Kevan Yang
 Markdown Feature: Oliver Pham
 Author          : Eugene Chung
 ```
+
+# License
+[MIT](LICENSE)

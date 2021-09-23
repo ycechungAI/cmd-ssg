@@ -10,6 +10,9 @@ lerna-debug.log*
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+# Personal backups (https://nodejs.org)
+.backups
+.cache
 # Runtime data
 pids
 *.pid
@@ -117,3 +120,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+.eslintrc.json
+.vs/VSWorkspaceState.json
+.vs/ProjectSettings.json
+.backup/old lock.json
+.backup/old code.js
+package-lock.json
+.vs/ProjectSettings.json
+.vs/VSWorkspaceState.json
