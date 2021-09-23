@@ -164,13 +164,13 @@ const convertToHtml = async (
   //Check if ./dist folder exist
   //Remove if exist
   if (fs.existsSync("./dist") && outputPath === "./dist") {
-    await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
+    await fs.rm("./dist", { force: true, recursive: true }, (err) => {
       if (err) throw new Error(err);
     });
   }
   if (outputPath === "./dist")
     //Create a new folder call ./dist
-    await fs.promises.mkdir("./dist", { recursive: true }, (err) => {
+    await fs.mkdir("./dist", { recursive: true }, (err) => {
       if (err) throw new Error(err);
     });
 
