@@ -62,8 +62,14 @@ ssgy <command option>
    - [x] Parse Heading syntax
    - [x] Parse Italics & Bold syntax
 
+# Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 ```
 Special Thanks  : Kevan Yang
 Markdown Feature: Oliver Pham
 Author          : Eugene Chung
 ```
+
+# License
+[MIT](LICENSE)
