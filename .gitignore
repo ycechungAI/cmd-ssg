@@ -120,3 +120,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+.eslintrc.json
+.vs/VSWorkspaceState.json
+.vs/ProjectSettings.json
+.backup/old lock.json
+.backup/old code.js
+package-lock.json
+.vs/ProjectSettings.json
+.vs/VSWorkspaceState.json
