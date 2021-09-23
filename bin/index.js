@@ -199,9 +199,9 @@ const convertToHtml = async (
     const listFolderPath = [];
     //Remove root folder and removes duplicates
     for (let filePath of filesPathList) {
-      filePath = filePath.split(/\\|\//);
-      filePath.shift();
-      filePath = filePath.join("/");
+      filePath = path.basename(filePath);
+      [...new Set (filePath)]
+
       if (!listFolderPath.includes(path.dirname(filePath))) {
         listFolderPath.push(path.dirname(filePath));
       }
@@ -223,9 +223,7 @@ const convertToHtml = async (
       const data = await readFile(filePath);
 
       //Remove root folder
-      filePath = filePath.split(/\\|\//);
-      filePath.shift();
-      const noRootFilePath = filePath.join("/");
+      noRootFilePath = path.basename(filePath);
 
       //Create the html file
       let createdFileName = await createHtmlFile(
