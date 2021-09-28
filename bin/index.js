@@ -333,7 +333,7 @@ if (options.version) {
   } else {
     //no input given
     process.exit(0);
-    throw new error(chalk.red("No supported files"));
+    throw new error("No supported files");
     
   }
 }
