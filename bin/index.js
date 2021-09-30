@@ -346,7 +346,6 @@ if (options.version) {
 } else {
   //yargs
   //check if input is file or folder and if it exists
-  //files
   let files = [];
   
   test = checkInput(options.input);
