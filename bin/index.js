@@ -12,7 +12,7 @@ const path = require("path");
 
 //**open source by Kevan Yang
 const generateHTML = require("../generateHtmlTemplate");
-const supportedExtensions = ['.txt', '.md'];
+const supportedExtensions = ['.txt', '.md', '.css'];
 let isFile;
 let inputPaths = "./";
 let outputFolder = "./dist";
@@ -126,7 +126,7 @@ const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
       `${underscoreFileName}.html`
     )}`
   );
-  return path.join(`${outputPath}`, `${fileName}.html`);
+  return path.join(`${outputPath}`, `${underscoreFileName}.html`);
 };
 
 //createHtmlFile generateHTML file
@@ -305,7 +305,7 @@ const treatData = (data) => {
 
   return dataTreated;
 };
-function checkInput(input) {
+function checkInput(input,) {
   if (fs.existsSync(input)) {
     const filepath = fs.lstatSync(input);
     if (filepath.isFile()) {
@@ -326,8 +326,10 @@ function checkInput(input) {
               return true;
             }
           } else {
-            if (path.extname(content) === ".txt") {
+            if (path.extname(content) === ".txt" || path.extname(content) === ".md") {
               return true;
+            }else{
+              return false;
             }
           }
         }
@@ -340,6 +342,7 @@ function checkInput(input) {
     console.log(`Read folder -> ${input}`);
     return true;
   }
+  return false;
 }
 //commander code
 program.parse(process.argv);
@@ -358,10 +361,20 @@ if (options.version) {
   //check if input is file or folder and if it exists
   let files = [];
   
+  if (process.argv[5] != undefined){
+    console.log(options.stylesheet);
+    test2 = checkInput(options.stylesheet);
+    if (test2 == false){
+      console.log(errorCode1);
+      process.exit(1);
+      throw new error("No supported stylesheet");
+    }
+  }
   test = checkInput(options.input);
   if (test == true) {
     //do the magic of converting txt to html
     console.log(`  running >>>`);
+    
     convertToHtml(process.argv[3], options.stylesheet, outputFolder, isFile);
   } else {
     //no input given
