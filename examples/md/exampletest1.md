@@ -21,6 +21,13 @@ _This is italic text_
 
 ~~Strikethrough~~
 
+
+## Lab 3 Test
+--- thematic break ---
+what about this ---test---
+---test2---hmm ok
+
+
 + Create a list by starting a line with `+`, `-`, or `*`
 + Sub-lists are made by indenting 2 spaces:
   - Marker character change forces new list start:
@@ -28,7 +35,6 @@ _This is italic text_
     + Facilisis in pretium nisl aliquet
     - Nulla volutpat aliquam velit
 + Very easy!
-
 Block code "fences"
 
 ```
