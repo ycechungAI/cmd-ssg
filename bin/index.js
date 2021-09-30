@@ -68,9 +68,7 @@ const msgHelp = boxen(helpMsg, boxenOptions);
 const isFileSupported = (extension) => {
   return supportedExtensions.includes(extension);
 }
-const getFileName = (filepath) => {	
-  return path.basename(filepath).split('.')[0];	
-}
+
 // readFile
 
 const readFile = (filepath) => {
@@ -86,10 +84,20 @@ const readFile = (filepath) => {
 };
 
 // createHTML
-const createHtmlFile = async (fileName, data, stylesheet = "", outputPath) => {
+const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
+  const fileName = basename.split('.')[0];
+  let dataTreated = { title: "", content: "" };
+
+  if (path.extname(basename) === '.md') {
+    dataTreated = treatMarkdownData(data);
+  }
+  else if (path.extname(basename) === '.txt') {
+    dataTreated = treatData(data);
+  }
   let htmlOption = {
-    ...treatData(data),
-    style: stylesheet, 
+    ...dataTreated,
+    style: stylesheet,
+    fileExtname: path.extname(basename), 
   };
   const underscoreFileName = fileName.replaceAll(" ", "_");
   await fs.promises.writeFile(
@@ -156,14 +164,14 @@ const convertToHtml = async (
   //Check if ./dist folder exist
   //Remove if exist
   if (fs.existsSync("./dist") && outputPath === "./dist") {
-    await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {	
-      if (err) throw new Error(err);	
-    });	
+    await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
+      if (err) throw new Error(err);
+    });
   }
   if (outputPath === "./dist")
     //Create a new folder call ./dist
-    await fs.promises.mkdir("./dist", { recursive: true }, (err) => {	
-      if (err) throw new Error(err);	
+    await fs.promises.mkdir("./dist", { recursive: true }, (err) => {
+      if (err) throw new Error(err);
     });
 
   if (isFile) {
@@ -172,7 +180,7 @@ const convertToHtml = async (
 
     //Create the html file
     let createdFileName = await createHtmlFile(
-      getFileName(inputPaths),
+      path.basename(inputPaths),
       data,
       stylesheet,
       outputPath
@@ -195,9 +203,9 @@ const convertToHtml = async (
     const listFolderPath = [];
     //Remove root folder and removes duplicates
     for (let filePath of filesPathList) {
-      filePath = path.basename(filePath);
-      [...new Set (filePath)]
-
+      filePath = filePath.split(/\\|\//);
+      filePath.shift();
+      filePath = filePath.join("/");
       if (!listFolderPath.includes(path.dirname(filePath))) {
         listFolderPath.push(path.dirname(filePath));
       }
@@ -219,7 +227,9 @@ const convertToHtml = async (
       const data = await readFile(filePath);
 
       //Remove root folder
-      noRootFilePath = path.basename(filePath);
+      filePath = filePath.split(/\\|\//);
+      filePath.shift();
+      const noRootFilePath = filePath.join("/");
 
       //Create the html file
       let createdFileName = await createHtmlFile(
@@ -333,7 +343,7 @@ if (options.version) {
   } else {
     //no input given
     process.exit(0);
-    throw new error("No supported files");
+    throw new error(chalk.red("No supported files"));
     
   }
 }
