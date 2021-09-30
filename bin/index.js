@@ -38,7 +38,14 @@ const versionMsg = chalk.white.bold(`${program.version}\n`);
 const helpMsg = chalk.white.bold(
   "HELP\n----------------------------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n"
 );
-
+//Error codes
+const errorCode1 = chalk.red.bold("No supported file or folder!");
+const errorCode2 = chalk.red.bold("File type is not supported!");
+const errorCode3 = chalk.red.bold("Unable to create folder!");
+const errorCode4 = chalk.red.bold("Invalid file or folder!");
+const errorCode6 = chalk.red.bold("Read file Error!");
+const errorCode7 = chalk.red.bold("Processing Error!");
+const errorCode8 = chalk.red.bold("Generate HTML file Error!");
 //clear screen
 clear();
 console.log(
@@ -76,6 +83,8 @@ const readFile = (filepath) => {
     fs.readFile(filepath, "utf-8", (error, content) => {
       if (error != null) {
         reject(error);
+        console.log(errorCode6);
+        process.exitCode = 6;
         return;
       }
       resolve(content);
@@ -104,7 +113,11 @@ const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
     path.join(`${outputPath}`, `${underscoreFileName}.html`),
     generateHTML.generateHtmlTemplate(htmlOption),
     (err) => {
-      if (err) throw new Error(err);
+      if (err){
+        console.log(errorCode7);
+        process.exitCode = 7;
+        throw new Error(err);
+      }
     }
   );
   console.log(
@@ -129,7 +142,10 @@ const createIndexHtmlFile = async (routeList, stylesheet = "", outputPath) => {
     path.join(`${outputPath}`, `index.html`),
     generateHTML.generateHtmlMenuTemplate(htmlOption),
     (err) => {
-      if (err) throw new Error(err);
+      if (err){
+        console.log(errorCode8);
+        throw new Error(err);
+      }
     }
   );
   console.log(`File created -> ${path.join(`${outputPath}`, `index.html`)}`);
@@ -165,13 +181,21 @@ const convertToHtml = async (
   //Remove if exist
   if (fs.existsSync("./dist") && outputPath === "./dist") {
     await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
-      if (err) throw new Error(err);
+      if (err){
+        console.log(errorCode3);
+        process.errorCode = 3;
+        throw new Error(err);
+      }
     });
   }
   if (outputPath === "./dist")
     //Create a new folder call ./dist
     await fs.promises.mkdir("./dist", { recursive: true }, (err) => {
-      if (err) throw new Error(err);
+      if (err){
+        console.log(errorCode3) //XXXXX
+        process.errorCode = 3;
+        throw new Error(err);
+      }
     });
 
   if (isFile) {
@@ -324,15 +348,14 @@ const options = program.opts();
 if (options.version) {
   console.log(verMsg);
   //exit
-  process.exit(1);
+  process.exit(0); // success
 } else if (options.help) {
   console.log(msgHelp);
   //exit
-  process.exit(1);
+  process.exit(0); // success
 } else {
   //yargs
   //check if input is file or folder and if it exists
-  //files
   let files = [];
   
   test = checkInput(options.input);
@@ -342,8 +365,10 @@ if (options.version) {
     convertToHtml(process.argv[3], options.stylesheet, outputFolder, isFile);
   } else {
     //no input given
-    process.exit(0);
-    throw new error(chalk.red("No supported files"));
+    console.log(errorCode1);
+    process.exit(1); //error Code 1
+    throw new error("No supported files");
+
     
   }
 }
