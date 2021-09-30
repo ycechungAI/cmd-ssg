@@ -12,7 +12,7 @@ const path = require("path");
 
 //**open source by Kevan Yang
 const generateHTML = require("../generateHtmlTemplate");
-const supportedExtensions = ['.txt', '.md', '.css'];
+const supportedExtensions = ['.txt', '.md'];
 let isFile;
 let inputPaths = "./";
 let outputFolder = "./dist";
@@ -305,12 +305,15 @@ const treatData = (data) => {
 
   return dataTreated;
 };
-function checkInput(input,) {
+
+function checkInput(input) {
   if (fs.existsSync(input)) {
     const filepath = fs.lstatSync(input);
     if (filepath.isFile()) {
       if (isFileSupported(path.extname(input))) {
         isFile = true;
+        return true;
+      } else if (path.extname(input) === '.css') {
         return true;
       } else {
         throw new Error("File type is not supported");
@@ -326,10 +329,8 @@ function checkInput(input,) {
               return true;
             }
           } else {
-            if (path.extname(content) === ".txt" || path.extname(content) === ".md") {
+            if (path.extname(content) === ".txt" || path.extname(content) === ".md" || path.extname(content) === ".css") {
               return true;
-            }else{
-              return false;
             }
           }
         }
@@ -362,14 +363,13 @@ if (options.version) {
   let files = [];
   
   if (process.argv[5] != undefined){
-    console.log(options.stylesheet);
-    test2 = checkInput(options.stylesheet);
+    test2 = checkInput(process.argv[5]);
     if (test2 == false){
       console.log(errorCode1);
       process.exit(1);
-      throw new error("No supported stylesheet");
     }
   }
+
   test = checkInput(options.input);
   if (test == true) {
     //do the magic of converting txt to html
