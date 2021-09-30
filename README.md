@@ -30,7 +30,9 @@ deliverable 0.1 for OSD600 open source course at seneca
 
 ```
 git clone <this repo>
+
 npm install -g . or npm install if you are just testing
+
 ssgy <command option>
 
 Example:
