@@ -6,7 +6,7 @@ deliverable 0.1 for OSD600 open source course at seneca
 
 ```
   VERSION    : 0.1.0
-  Use        : Process input .txt/.md files into generated .html files.
+  Use        : Process input .txt files into generated .html files.
 ```
 
 ## Prerequiste for development
@@ -15,7 +15,9 @@ deliverable 0.1 for OSD600 open source course at seneca
    "node": ">=16.9.1",
    "npm": ">=7.23.0"
 
-   run npm install chalk if you run into package errors
+   if you are developing,
+   run npm install
+
 ```
 
 ## Screen Shot
@@ -28,7 +30,9 @@ deliverable 0.1 for OSD600 open source course at seneca
 
 ```
 git clone <this repo>
-npm install -g .
+
+npm install -g . or npm install if you are just testing
+
 ssgy <command option>
 
 Example:
@@ -53,9 +57,6 @@ ssgy -i examples
 13. parse a title from your input files
 14. adding -s stylesheet option
 15. making it easy on the eyes =) checkout my cmd-ssg -h
-16. generate static files for Markdown files
-   - [x] Parse Heading syntax
-   - [x] Parse Italics & Bold syntax
 
 ```
 Special Thanks  : Kevan Yang
