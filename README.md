@@ -57,6 +57,7 @@ ssgy -i examples
 13. parse a title from your input files
 14. adding -s stylesheet option
 15. making it easy on the eyes =) checkout my cmd-ssg -h
+16. proper error message if incorrect file/folder inputs
 
 ```
 Special Thanks  : Kevan Yang
