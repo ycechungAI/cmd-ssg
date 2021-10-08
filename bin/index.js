@@ -351,7 +351,6 @@ function checkInput(input) {
 program.parse(process.argv);
 //console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
 const options = program.opts();
-const configFile = require("../"+options.config);
 if (options.version) {
   console.log(verMsg);
   //exit
@@ -364,6 +363,7 @@ if (options.version) {
   //yargs
   //check if input is file or folder and if it exists
   if(options.config){
+    const configFile = require("../"+options.config);
     configFile.input ? options.input = configFile.input : process.exit(1);
     configFile.stylesheet ? options.stylesheet = configFile.stylesheet : options.stylesheet = undefined;
   }
