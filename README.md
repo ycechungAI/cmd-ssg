@@ -58,6 +58,7 @@ ssgy -i examples
 14. adding -s stylesheet option
 15. making it easy on the eyes =) checkout my cmd-ssg -h
 16. proper error message if incorrect file/folder inputs
+17. accept a json file to pass options from the file
 
 ```
 Special Thanks  : Kevan Yang
