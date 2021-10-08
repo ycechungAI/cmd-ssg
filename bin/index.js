@@ -21,7 +21,7 @@ let outputFolder = "./dist";
 const { program } = require("commander");
 const { option } = require("yargs");
 program.version("0.1");
-program.option("-c, --config", "enter the config.json file with options to be added here")
+program.option("-c, --config <type>", "enter the config.json file with options to be added here")
 program.option("-v, --version", "version 0.1");
 program.option("-h, --help", "help for cmd-svg");
 program.option("-i, --input <input>", "specify input file or folder");
@@ -351,7 +351,7 @@ function checkInput(input) {
 program.parse(process.argv);
 //console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
 const options = program.opts();
-const configFile = require("../config.json");
+const configFile = require("../"+options.config);
 if (options.version) {
   console.log(verMsg);
   //exit
@@ -363,7 +363,6 @@ if (options.version) {
 } else {
   //yargs
   //check if input is file or folder and if it exists
-
   if(options.config){
     configFile.input ? options.input = configFile.input : process.exit(1);
     configFile.stylesheet ? options.stylesheet = configFile.stylesheet : options.stylesheet = undefined;
