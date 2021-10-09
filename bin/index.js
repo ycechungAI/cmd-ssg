@@ -21,12 +21,15 @@ let inputPaths = './'
 let outputFolder = "./dist"
 
 //commander
-const { program } = require('commander');
-program.version('0.1');
-program.option('-v, --version', 'version 0.1');
-program.option('-h, --help', 'help for cmd-svg');
-program.option('-i, --input <input>', 'specify input file or folder');
-program.option('-s, --stylesheet <input>', 'specify a stylesheet file');
+const { program } = require("commander");
+const { option } = require("yargs");
+program.version("0.1");
+program.option("-c, --config <type>", "enter the config.json file with options to be added here")
+program.option("-v, --version", "version 0.1");
+program.option("-h, --help", "help for cmd-svg");
+program.option("-i, --input <input>", "specify input file or folder");
+program.option("-s, --stylesheet <input>", "specify a stylesheet file");
+
 //styles
 const boxenOptions = {
     padding: 1,
@@ -38,70 +41,98 @@ const boxenOptions = {
 
 //message variables
 const versionMsg = chalk.white.bold(`${program.version}\n`);
-const helpMsg = chalk.white.bold("HELP\n-------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n");
-
-
+const helpMsg = chalk.white.bold(
+  "HELP\n----------------------------------------------------------------------\n -h, --help       list options \n -v, --version    program version \n -i, --input      specify input file or folder\n -s, --stylesheet specify stylesheet\n"
+);
+//Error codes
+const errorCode1 = chalk.red.bold("No supported file or folder!");
+const errorCode2 = chalk.red.bold("File type is not supported!");
+const errorCode3 = chalk.red.bold("Unable to create folder!");
+const errorCode4 = chalk.red.bold("Invalid file or folder!");
+const errorCode6 = chalk.red.bold("Read file Error!");
+const errorCode7 = chalk.red.bold("Processing Error!");
+const errorCode8 = chalk.red.bold("Generate HTML file Error!");
 //clear screen
 clear();
 console.log(
-  chalk.yellow(
-      figlet.textSync('cmd-ssg', { horizontalLayout: 'full' })
-    )
-  );
-//yargs 
-var { argv } = require('yargs')
-    .help()
-    .option('i', {
-      alias: 'input',
-      demandOption: true,
-      default: '.',
-      describe: "specify input file or folder",
-      type: 'string'
-    })
-    .option('s', {
-      alias: 'stylesheet',
-      demandOption: true,
-      default: '.',
-      describe: "specify stylesheet",
-      type: 'string'
-    }).argv;
-  
-  
-  const verMsg = boxen( versionMsg, boxenOptions );
-  const msgHelp = boxen( helpMsg, boxenOptions);
-  
-  // readFile
+  chalk.yellow(figlet.textSync("cmd-ssg", { horizontalLayout: "full" }))
+);
+//yargs
+var { argv } = require("yargs")
+  .help()
+  .option("i", {
+    alias: "input",
+    demandOption: true,
+    default: ".",
+    describe: "specify input file or folder",
+    type: "string",
+  })
+  .option("s", {
+    alias: "stylesheet",
+    demandOption: true,
+    default: ".",
+    describe: "specify stylesheet",
+    type: "string",
+  }).argv;
 
-  const readFile = (filepath) => {
-    return new Promise((resolve, reject) => {
-      fs.readFile(filepath, 'utf-8', (error, content) =>{
-        if (error != null){
-          reject(error);
-          return;
-        }
-        resolve(content);
-      });
+const verMsg = boxen(versionMsg, boxenOptions);
+const msgHelp = boxen(helpMsg, boxenOptions);
+
+const isFileSupported = (extension) => {
+  return supportedExtensions.includes(extension);
+}
+
+// readFile
+
+const readFile = (filepath) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filepath, "utf-8", (error, content) => {
+      if (error != null) {
+        reject(error);
+        console.log(errorCode6);
+        process.exitCode = 6;
+        return;
+      }
+      resolve(content);
     });
   };
 
-  // createHTML
-  const createHtmlFile = async (fileName, data, stylesheet = '', outputPath) => {
+// createHTML
+const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
+  const fileName = basename.split('.')[0];
+  let dataTreated = { title: "", content: "" };
+
+  if (path.extname(basename) === '.md') {
+    dataTreated = treatMarkdownData(data);
+  }
+  else if (path.extname(basename) === '.txt') {
+    dataTreated = treatData(data);
+  }
   let htmlOption = {
-    ...treatData(data),
+    ...dataTreated,
     style: stylesheet,
+    fileExtname: path.extname(basename), 
   };
   const underscoreFileName = fileName.replaceAll(' ', '_');
   await fs.promises.writeFile(
     path.join(`${outputPath}`, `${underscoreFileName}.html`),
     generateHTML.generateHtmlTemplate(htmlOption),
     (err) => {
-      if (err) throw new Error(err);
-    },
+      if (err){
+        console.log(errorCode7);
+        process.exitCode = 7;
+        throw new Error(err);
+      }
+    }
   );
-    console.log(`File created -> ${path.join(`${outputFolder}`, `${underscoreFileName}.html`)}`);
-    return path.join(`${outputPath}`, `${fileName}.html`);
-    
-  };
+  console.log(
+    `File created -> ${path.join(
+      `${outputFolder}`,
+      `${underscoreFileName}.html`
+    )}`
+  );
+  return path.join(`${outputPath}`, `${underscoreFileName}.html`);
+};
 
   //createHtmlFile generateHTML file
 
@@ -116,8 +147,11 @@ var { argv } = require('yargs')
     path.join(`${outputPath}`, `index.html`),
     generateHTML.generateHtmlMenuTemplate(htmlOption),
     (err) => {
-      if (err) throw new Error(err);
-    },
+      if (err){
+        console.log(errorCode8);
+        throw new Error(err);
+      }
+    }
   );
   console.log(`File created -> ${path.join(`${outputPath}`, `index.html`)}`);
   };
@@ -151,15 +185,23 @@ var { argv } = require('yargs')
   let routesList = [];
   //Check if ./dist folder exist
   //Remove if exist
-  if (fs.existsSync('./dist') && outputPath === './dist') {
-    await fs.promises.rm('./dist', { force: true, recursive: true }, (err) => {
-      if (err) throw new Error(err);
+  if (fs.existsSync("./dist") && outputPath === "./dist") {
+    await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
+      if (err){
+        console.log(errorCode3);
+        process.errorCode = 3;
+        throw new Error(err);
+      }
     });
   }
   if (outputPath === './dist')
     //Create a new folder call ./dist
-    await fs.promises.mkdir('./dist', { recursive: true }, (err) => {
-      if (err) throw new Error(err);
+    await fs.promises.mkdir("./dist", { recursive: true }, (err) => {
+      if (err){
+        console.log(errorCode3) //XXXXX
+        process.errorCode = 3;
+        throw new Error(err);
+      }
     });
 
   if (isFile) {
@@ -168,7 +210,7 @@ var { argv } = require('yargs')
 
     //Create the html file
     let createdFileName = await createHtmlFile(
-      path.basename(inputPaths, '.txt'),
+      path.basename(inputPaths),
       data,
       stylesheet,
       outputPath,
@@ -190,7 +232,7 @@ var { argv } = require('yargs')
     for (let filePath of filesPathList) {
       filePath = filePath.split(/\\|\//);
       filePath.shift();
-      filePath = filePath.join('/');
+      filePath = filePath.join("/");
       if (!listFolderPath.includes(path.dirname(filePath))) {
         listFolderPath.push(path.dirname(filePath));
       }
@@ -214,7 +256,7 @@ var { argv } = require('yargs')
       //Remove root folder
       filePath = filePath.split(/\\|\//);
       filePath.shift();
-      const noRootFilePath = filePath.join('/');
+      const noRootFilePath = filePath.join("/");
 
       //Create the html file
       let createdFileName = await createHtmlFile(
@@ -259,33 +301,33 @@ var { argv } = require('yargs')
   dataTreated.content = data;
 
   return dataTreated;
-  };
+};
 
-  //commander code
-  program.parse(process.argv);
-  //console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
-  const options = program.opts()
-  if(process.argv[2] == "-v" || process.argv[2] == "--version"){
-    console.log(verMsg);
-    process.exit(1);
-  } else if (process.argv[2] == "-h" || process.argv[2] == "--help") {
-    console.log(msgHelp);
-    process.exit(1);
-  } else {
-    //yargs
-    //check if input is file or folder and if it exists
-    //files
-    let files = [];
-    function checkInput(input) {
-      if (fs.existsSync(input)) {
-        if(/\w+.txt/.test(input)){ // ends in .txt which means its a file
-         // console.log("file check");
-          if(fs.lstatSync(input).isFile){
-            if (path.extname(input) === '.txt'){
-              isFile = true;
-              return true
-            }else{
-              throw new Error("File must be a .txt file");
+function checkInput(input) {
+  if (fs.existsSync(input)) {
+    const filepath = fs.lstatSync(input);
+    if (filepath.isFile()) {
+      if (isFileSupported(path.extname(input))) {
+        isFile = true;
+        return true;
+      } else if (path.extname(input) === '.css') {
+        return true;
+      } else {
+        throw new Error("File type is not supported");
+      }
+    } else if (filepath.isDirectory()) {
+      const checkTxtFile = (folderpath) => {
+        const dirContents = fs.readdirSync(dirpath);
+        for (const contents of dirContents) {
+          const dirContentLstat = fs.lstatSync(path.join(dirpath, contents));
+
+          if (dirContentLstat.isDirectory()) {
+            if (checkTextFile(path.join(dirpath, content))) {
+              return true;
+            }
+          } else {
+            if (path.extname(content) === ".txt" || path.extname(content) === ".md" || path.extname(content) === ".css") {
+              return true;
             }
           }
           
@@ -322,16 +364,54 @@ var { argv } = require('yargs')
         return false;
       }
     }
-    //console.log(`options.input -> ${options.input}`);
-    test = checkInput(options.input);
-    if ( test == true){
-      //do the magic of converting txt to html
-      console.log(`  running >>>`);
-      convertToHtml( process.argv[3], options.stylesheet, outputFolder, isFile);
-    }else { //no input given
-      throw new error(chalk.red("No .txt files"));
-      //process.stdin.resume();
+    console.log(`Read folder -> ${input}`);
+    return true;
+  }
+  return false;
+}
+//commander code
+program.parse(process.argv);
+//console.log(`argv 0 ${process.argv[0]} \n argv 1  ${process.argv[1]} \n argv 2  ${process.argv[2]} \n argv 3  ${process.argv[3]} \n outputFolder  \n\n`);
+const options = program.opts();
+if (options.version) {
+  console.log(verMsg);
+  //exit
+  process.exit(0); // success
+} else if (options.help) {
+  console.log(msgHelp);
+  //exit
+  process.exit(0); // success
+} else {
+  //yargs
+  //check if input is file or folder and if it exists
+  if(options.config){
+    configFile.input ? options.input = configFile.input : process.exit(1);
+    configFile.stylesheet ? options.stylesheet = configFile.stylesheet : options.stylesheet = undefined;
+  }
+
+
+  let files = [];
+  
+  if (process.argv[5] != undefined){
+    test2 = checkInput(process.argv[5]);
+    if (test2 == false){
+      console.log(errorCode1);
+      process.exit(1);
     }
-    //exit
-    process.exit(1);
+  }
+
+  test = checkInput(options.input);
+  if (test == true) {
+    //do the magic of converting txt to html
+    console.log(`  running >>>`);
+    
+    convertToHtml(options.input, options.stylesheet, outputFolder, isFile);
+  } else {
+    //no input given
+    console.log(errorCode1);
+    process.exit(1); //error Code 1
+    throw new error("No supported files");
+
+    
+  }
 }

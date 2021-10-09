@@ -3,10 +3,22 @@ Deliverable 0.1 for OSD600 Open Source course at seneca
 
 ## Description: command-line-static site tool
 ```
-## VERSION    : 0.1
-   Use        : process input .txt files into generated .html files.
+  VERSION    : 0.1.0
+  Use        : Process input .txt files into generated .html files.
 ```
-## Screen Shot 
+
+## Prerequiste for development
+
+```
+   "node": ">=16.9.1",
+   "npm": ">=7.23.0"
+
+   if you are developing,
+   run npm install
+
+```
+
+## Screen Shot
 <img src="https://i.ibb.co/VDZ9LmC/cmd-ssg-img1.png"
      alt="Program running -h"
      style="float: left; margin-right: 10px;" />
@@ -14,11 +26,13 @@ Deliverable 0.1 for OSD600 Open Source course at seneca
 ## How to Use
 ```
 git clone <this repo>
-npm install -g .
+
+npm install -g . or npm install if you are just testing
+
 ssgy <command option>
 
 Example:
-ssgy -i ./examples
+ssgy -i examples
 ```
 
 ## DONE       :
@@ -41,9 +55,12 @@ Bonus:
    
 ## TODO & ONGOING  :
 14. adding -s stylesheet option
-15. making it easy on the eyes =)
-   
-```   
-QA Contributor: Kevin Yang 
-Author        : Eugene Chung
+15. making it easy on the eyes =) checkout my cmd-ssg -h
+16. proper error message if incorrect file/folder inputs
+17. accept a json file to pass options from the file
+
+```
+Special Thanks  : Kevan Yang
+Markdown Feature: Oliver Pham
+Author          : Eugene Chung
 ```
