@@ -6,7 +6,7 @@ deliverable 0.1 for OSD600 open source course at seneca
 
 ```
   VERSION    : 0.1.0
-  Use        : Process input .txt files into generated .html files.
+  Use        : Process input .txt or .md files into generated .html files.
 ```
 
 ## Prerequiste for development
@@ -33,10 +33,14 @@ git clone <this repo>
 
 npm install -g . or npm install if you are just testing
 
-ssgy <command option>
+ssgy <command option>    or    ./bin/index.js <command option> to be safe
 
-Example:
+Example Use:
 ssgy -i examples
+ssgy -i <file/folder with .txt or .md files> -s <stylesheet.css>
+
+# If you dont like typing commands use json file
+ssgy -c config.json
 ```
 
 ## FEATURES :
@@ -65,3 +69,6 @@ Special Thanks  : Kevan Yang
 Markdown Feature: Oliver Pham
 Author          : Eugene Chung
 ```
+  
+## License
+[MIT](LICENSE)
