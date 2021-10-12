@@ -366,6 +366,7 @@ if (options.version) {
     const configFile = require("../"+options.config);
     configFile.input ? options.input = configFile.input : process.exit(1);
     configFile.stylesheet ? options.stylesheet = configFile.stylesheet : options.stylesheet = undefined;
+    configFile.output ? outputFolder = configFile.output: outputFolder = "dist";
   }
 
 
