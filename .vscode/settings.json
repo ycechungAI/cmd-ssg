@@ -1,0 +1,22 @@
+{
+  "cSpell.words": [
+    "Cantarell",
+    "dirpath",
+    "fastify",
+    "Fira",
+    "folderpath",
+    "linebreak",
+    "Neue",
+    "Noto",
+    "Roboto",
+    "Segoe",
+    "stylesheet"
+  ],
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.detectIndendations": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true
+}
