@@ -1,7 +1,8 @@
 # h1 Heading 8-)
-## h2 Heading
-### h3 Heading
 
+## h2 Heading
+
+### h3 Heading
 
 ## Typographic replacements
 
@@ -13,29 +14,28 @@ Enable typographer option to see result.
 
 **This is bold text**
 
-__This is bold text__
+**This is bold text**
 
-*This is italic text*
+_This is italic text_
 
 _This is italic text_
 
 ~~Strikethrough~~
 
-
 ## Lab 3 Test
+
 --- thematic break ---
 what about this ---test---
 ---test2---hmm ok
 
-
-+ Create a list by starting a line with `+`, `-`, or `*`
-+ Sub-lists are made by indenting 2 spaces:
+- Create a list by starting a line with `+`, `-`, or `*`
+- Sub-lists are made by indenting 2 spaces:
   - Marker character change forces new list start:
-    * Ac tristique libero volutpat at
-    + Facilisis in pretium nisl aliquet
+    - Ac tristique libero volutpat at
+    * Facilisis in pretium nisl aliquet
     - Nulla volutpat aliquam velit
-+ Very easy!
-Block code "fences"
+- Very easy!
+  Block code "fences"
 
 ```
 Sample text here...
@@ -43,11 +43,11 @@ Sample text here...
 
 ## Tables
 
-| Option | Description |
-| ------ | ----------- |
+| Option | Description                                                               |
+| ------ | ------------------------------------------------------------------------- |
 | data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
+| engine | engine to be used for processing templates. Handlebars is the default.    |
+| ext    | extension to be used for dest files.                                      |
 
 ## Links
 
@@ -68,7 +68,6 @@ Like links, Images also have a footnote style syntax
 
 With a reference later in the document defining the URL location:
 
-[id]: https://octodex.github.com/images/dojocat.jpg  "The Dojocat"
-
+[id]: https://octodex.github.com/images/dojocat.jpg "The Dojocat"
 
 Credits: https://markdown-it.github.io/

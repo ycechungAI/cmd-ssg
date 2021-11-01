@@ -1,74 +1,50 @@
 # cmd-ssg
 
-deliverable 0.1 for OSD600 open source course at seneca
-
-## Description: command-line-static site tool
-
-```
-  VERSION    : 0.1.0
-  Use        : Process input .txt or .md files into generated .html files.
-```
-
-## Prerequiste for development
-
-```
-   "node": ">=16.9.1",
-   "npm": ">=7.23.0"
-
-   if you are developing,
-   run npm install
-
-```
-
-## Screen Shot
-
 <img src="https://i.ibb.co/VDZ9LmC/cmd-ssg-img1.png"
      alt="Program running -h"
      style="float: left; margin-right: 10px;" />
 
-## How to Use
-
+```text
+deliverable 0.1 for OSD600 open source course at seneca
 ```
-git clone <this repo>
 
-npm install -g . or npm install if you are just testing
+## Description: command-line-static site tool
 
-ssgy <command option>    or    ./bin/index.js <command option> to be safe
-
-Example Use:
-ssgy -i examples
-ssgy -i <file/folder with .txt or .md files> -s <stylesheet.css>
-
-# If you dont like typing commands use json file
-ssgy -c config.json
+```text
+  VERSION    : 0.1.0
+  Use        : Process input .txt or .md files into generated .html files.
 ```
 
 ## FEATURES :
 
-1. cmd-ssg
-2. github repo created
-3. MIT license chosen
-4. create README.md - keep it updated as you write your code, documenting how to use your tool, which features you include, etc. Your README file should tell users how to use your tool.
-5. choose Javascript/Node.js language
-6. running the tool with --version or -v flag will print the tool's name and current version
-7. running the tool with --help or -h flag should print standard help/usage message also showing how to run the tool, which command line flags and arguments can be used, etc.
-8. specify input file or folder with --input or -i
-9. generate one .html output file for each input file
-   NOTE : the original txt file(s) should not be modified
-10. need to deal with marking-up paragraphs: every blank line should be considered a paragraph limit and the text transformed into <p>
-11. your tool should place all output into a ./dist folder by default
-12. input can be deep within the files such as .\test\test2\
-13. parse a title from your input files
-14. adding -s stylesheet option
-15. making it easy on the eyes =) checkout my cmd-ssg -h
-16. proper error message if incorrect file/folder inputs
-17. accept a json file to pass options from the file
-
+```text
+1.  MIT license chosen
+2.  Built with Node.js, Commander
+3.  running the tool with --version or -v flag will print the tool's name and current version
+4.  running the tool with --help or -h flag should print standard help/usage message also showing how to run the tool, which command line flags and arguments can be used, etc.
+5.  specify input file or folder with --input or -i
+6.  accept .txt and .md files
+7.  generate one .html output file for each input file
+8.  Use -o or --output to specify output folder else a ./dist folder is used by default
+9.  input can be deep within the files such as .\test\test2\
+10. parse a title from your input files
+11. adding -s or --stylesheet stylesheet option
+12. proper error message if incorrect file/folder inputs
+13. Use -c or --config option with json file to pass options from the file
 ```
+
+## CONTRIBUTING :
+
+```text
+See CONTRIBUTING.md for setup and development
+```
+
+```text
 Special Thanks  : Kevan Yang
 Markdown Feature: Oliver Pham
 Author          : Eugene Chung
 ```
-  
+
 ## License
+
 [MIT](LICENSE)

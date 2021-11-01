@@ -1,3 +1,5 @@
+/* eslint-disable indent */
+/* eslint-disable no-undef */
 /*
 https://github.com/Kevan-Y/text-ssg/blob/master/generateHtmlTemplate.js
 
@@ -26,20 +28,18 @@ SOFTWARE.
 const markdown = require("./lib/parser/markdown");
 
 const renderContent = (options) => {
-    if (options.fileExtname === ".txt") {
-        return options.content
-          .map((phrases) => `<p>${phrases.trim()}</p>\n`)
-          .join("\n");
-    }
-    else if (options.fileExtname === ".md") {
-        return options.content
-          .map((phrases) => markdown.convertToHtml(phrases.trim()))
-          .join("\n");
-    }
-    else {
-        return "";
-    }
-}
+  if (options.fileExtname === ".txt") {
+    return options.content
+      .map((phrases) => `<p>${phrases.trim()}</p>\n`)
+      .join("\n");
+  } else if (options.fileExtname === ".md") {
+    return options.content
+      .map((phrases) => markdown.convertToHtml(phrases.trim()))
+      .join("\n");
+  } else {
+    return "";
+  }
+};
 
 const generateHtmlTemplate = (options) => {
   return `
