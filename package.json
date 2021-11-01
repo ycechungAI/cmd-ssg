@@ -16,13 +16,19 @@
     "commander": "^8.1.0",
     "fastify": "^3.21.3",
     "figlet": "^1.5.2",
+    "markdown-it": "^12.2.0",
     "y18n": "^4.0.3",
     "yargs": "^17.2.1",
-    "yargs-parser": "^13.1.2",
-    "markdown-it": "^12.2.0"
+    "yargs-parser": "^13.1.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "eslint": "eslint --ignore-path .gitignore .",
+    "eslint-fix": "eslint --fix --ignore-path .gitignore .",
+    "prettier-check": "npx prettier --check .",
+    "prettier": "npx prettier --write .",
+    "lint": "npm run eslint",
+    "pretest": "npm run lint",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -35,7 +41,7 @@
   "author": "Eugene Chung",
   "license": "MIT",
   "bin": {
-    "ssgy": "./bin/index.js"
+    "ssgy": "node bin/index.js"
   },
   "bugs": {
     "url": "https://github.com/ycechungAI/cmd-ssg/issues"
@@ -53,6 +59,12 @@
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^11.2.6",
     "prettier": "2.4.1"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,css,md}": "prettier --write"
   }
 }
