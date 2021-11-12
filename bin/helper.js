@@ -19,17 +19,31 @@ const errorCode8 = chalk.red.bold("Generate HTML file Error!");
 const errorCode9 = chalk.red.bold("File is not supported!");
 
 //Lab 5 - refactor with function
-const displayError = (error, code, codeNum) => {
+function displayError(error, code, codeNum) {
   if (error) {
     console.log(code);
-    process.exitCode = codeNum;
     throw new Error(error);
   }
-};
+}
 
 const isFileSupported = (extension) => {
   return supportedExtensions.includes(extension);
 };
+
+async function read(filepath) {
+  readFile(filepath).then((data) => {
+    const fileExtension = path.extname(filepath);
+    if (isFileSupported(fileExtension)) {
+      fs.readFile(filepath, "utf-8", (error, content) => {
+        displayError(error, errorCode6, 6);
+        resolve(content);
+      });
+      return data;
+    } else {
+      console.log(errorCode9);
+    }
+  });
+}
 
 // readFile
 const readFile = (filepath) => {
@@ -235,7 +249,8 @@ const treatData = (data) => {
 };
 
 function checkInput(input) {
-  if (fs.existsSync(input)) {
+  if (input === "") return false;
+  try {
     const filepath = fs.lstatSync(input);
     if (filepath.isFile()) {
       if (isFileSupported(path.extname(input))) {
@@ -274,8 +289,9 @@ function checkInput(input) {
     }
     console.log(`Read folder -> ${input}`);
     return true;
+  } catch (err) {
+    return false;
   }
-  return false;
 }
 
-module.exports = { checkInput, convertToHtml, displayError };
+module.exports = { read, checkInput, convertToHtml, displayError };

@@ -1,25 +1,14 @@
 {
-  "name": "cmd-ssg",
+  "name": "ssgy",
   "engines": {
     "node": ">=16.9.1",
     "npm": ">=7.21.1"
   },
+  "main": "./bin/index.js",
   "version": "0.1.0",
   "description": "cli .txt to html converter",
-  "main": "./bin/index.js",
-  "dependencies": {
-    "@types/yargs": "^17.0.2",
-    "boxen": "^5.0.1",
-    "chalk": "^4.1.2",
-    "clear": "^0.1.0",
-    "cli-boxes": "^2.2.1",
-    "commander": "^8.1.0",
-    "fastify": "^3.21.3",
-    "figlet": "^1.5.2",
-    "markdown-it": "^12.2.0",
-    "y18n": "^4.0.3",
-    "yargs": "^17.2.1",
-    "yargs-parser": "^13.1.2"
+  "bin": {
+    "ssgy": "./bin/index.js"
   },
   "scripts": {
     "eslint": "eslint --ignore-path .gitignore .",
@@ -28,7 +17,9 @@
     "prettier": "npx prettier --write .",
     "lint": "npm run eslint",
     "pretest": "npm run lint",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "jest",
+    "test:watch": "jest --watch --"
   },
   "repository": {
     "type": "git",
@@ -40,9 +31,6 @@
   ],
   "author": "Eugene Chung",
   "license": "MIT",
-  "bin": {
-    "ssgy": "node bin/index.js"
-  },
   "bugs": {
     "url": "https://github.com/ycechungAI/cmd-ssg/issues"
   },
@@ -55,11 +43,25 @@
     "outputPath": "dist"
   },
   "homepage": "https://github.com/ycechungAI/cmd-ssg#readme",
+  "dependencies": {
+    "@types/yargs": "^17.0.2",
+    "boxen": "^5.0.1",
+    "chalk": "^4.1.2",
+    "clear": "^0.1.0",
+    "cli-boxes": "^2.2.1",
+    "commander": "^8.1.0",
+    "fastify": "^3.21.3",
+    "figlet": "^1.5.2",
+    "markdown-it": "^12.2.0",
+    "y18n": "^4.0.3"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
+    "execa": "^5.1.1",
     "husky": "^7.0.4",
+    "jest": "^27.3.1",
     "lint-staged": "^11.2.6",
     "prettier": "2.4.1"
   },

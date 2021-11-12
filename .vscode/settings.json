@@ -2,6 +2,7 @@
   "cSpell.words": [
     "Cantarell",
     "dirpath",
+    "execa",
     "fastify",
     "Fira",
     "folderpath",
@@ -14,7 +15,6 @@
   ],
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
-  "editor.detectIndendations": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "files.eol": "\n",
