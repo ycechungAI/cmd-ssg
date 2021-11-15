@@ -8,10 +8,10 @@ let process = require("process");
 // eslint-disable-next-line no-unused-vars
 const path = require("path");
 //const readline = require("readline");
-
+let isFile;
 const helper = require("./helper");
-const checkInput = require("./inputCheck");
-const checkOutput = require("./outputCheck");
+const checkInput = require("../lib/inputCheck");
+const checkOutput = require("../lib/outputCheck");
 let outputFolderLocal = "./dist";
 // eslint-disable-next-line no-unused-vars
 let inputPaths = "./";
@@ -88,12 +88,13 @@ if (options.version) {
       process.exit(1);
     }
   }
-  testInput = checkInput.checkInput(options.input);
+  const testInput = checkInput.checkInput(options.input);
   testOutput = checkOutput.outputCheck(outputFolderLocal);
   if (options.output) {
     outputFolderLocal = options.output;
   }
   if (testInput == true && testOutput == true) {
+    isFile = checkInput.isFileCheck(options.input);
     //do the magic of converting txt to html
     console.log("  running >>>");
     helper.convertToHtml(

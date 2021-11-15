@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const generateHTML = require("../generateHtmlTemplate");
-const inputCheck = require("./inputCheck");
+const inputCheck = require("../lib/inputCheck");
 const chalk = require("chalk");
 //important variables
 let outputFolder = "./dist";
@@ -26,178 +26,9 @@ function displayError(error, code, codeNum) {
     throw new Error(error);
   }
 }
-
-// createHTML
-async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
-  const fileName = basename.split(".")[0];
-  let dataTreated = { title: "", content: "" };
-
-  if (path.extname(basename) === ".md") {
-    dataTreated = treatMarkdownData(data);
-  } else if (path.extname(basename) === ".txt") {
-    dataTreated = treatData(data);
-  }
-  let htmlOption = {
-    ...dataTreated,
-    style: stylesheet,
-    fileExtname: path.extname(basename),
-  };
-  const underscoreFileName = fileName.replaceAll(" ", "_");
-  const htmlFileName = `${underscoreFileName}.html`;
-  const htmlFilePath = path.join(outputPath, htmlFileName);
-  const html = generateHTML(htmlOption);
-  try {
-    await fs.promise.writeFile(htmlFilePath, html);
-  } catch (err) {
-    displayError(err, errorCode3, 3);
-  }
-  console.log(`${htmlFileName} -> created!`);
-  return htmlFilePath;
-  //console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
-  //return path.join(`${outputPath}`, `${underscoreFileName}.html`);
-}
-
-//createHtmlFile generateHTML file
-
-async function CreateIndexHtmlFile(routeList, stylesheet = "", outputPath) {
-  let htmlOption = {
-    routeList,
-    style: stylesheet,
-  };
-
-  //Create a new html file
-  const htmlFileName = "index.html";
-  const htmlFilePath = path.join(outputPath, htmlFileName);
-  const html = generateHTML.generateIndexHtmlTemplate(htmlOption);
-  try {
-    await fs.promise.writeFile(htmlFilePath, html);
-  } catch (err) {
-    displayError(err, errorCode3, 3);
-  }
-  console.log(`${htmlFileName} -> created!`);
-}
-
-// get all files
-async function getAllFiles(dirPath, filesPathList) {
-  const files = await fs.promises.readdir(dirPath);
-  filesPathList ||= [];
-
-  for (const file of files) {
-    const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
-    if (fileLstat.isDirectory()) {
-      filesPathList = await getAllFiles(
-        path.join(dirPath, file),
-        filesPathList
-      );
-    } else {
-      if (inputCheck.isFileSupported(path.extname(file)))
-        filesPathList.push(path.join(dirPath, file));
-    }
-  }
-  return filesPathList;
-}
-
-async function convertToHtml(inputPaths, stylesheet = "", outputPath, isFile) {
-  let routesList = [];
-  //Check if ./dist folder exist
-  //Remove if exist
-  if (fs.existsSync("./dist") && outputPath === "./dist") {
-    await fs.promises.rm("./dist", { recursive: true });
-  }
-  /*
-    await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
-      displayError(err, errorCode3, 3);
-    });
-  }
-  */
-  if (outputPath === "./dist")
-    //Create a new folder call ./dist
-    await fs.promises.mkdir("./dist", { recursive: true });
-
-  /*
-    await fs.promises.mkdir("./dist", { recursive: true }, (err) => {
-      displayError(err, errorCode3, 3);
-    });
-    */
-  if (isFile) {
-    //Read file data
-    const data = await fs.promises.readFile(inputPaths, "utf8");
-    //const data = await readFile(inputPaths);
-
-    //Create the html file
-    let createdFileName = await createHtmlFile(
-      path.basename(inputPaths),
-      data,
-      stylesheet,
-      outputPath
-    );
-
-    //Add to the array routesList to generate <a> in index.html
-    routesList.push({
-      url: createdFileName
-        .replaceAll(" ", "_")
-        .replace(path.normalize(outputPath), "")
-        .substr(1),
-      name: path.basename(createdFileName.replaceAll(" ", "_"), ".html"),
-    });
-    await createIndexHtmlFile(routesList, stylesheet, outputPath);
-  } else {
-    //Get allFiles
-    const filesPathList = [];
-    await getAllFiles(inputPaths, filesPathList);
-
-    const listFolderPath = [];
-    //Remove root folder and removes duplicates
-    for (let filePath of filesPathList) {
-      filePath = filePath.split(/\\|\//);
-      filePath.shift();
-      filePath = filePath.join("/");
-      if (!listFolderPath.includes(path.dirname(filePath))) {
-        listFolderPath.push(path.dirname(filePath));
-      }
-    }
-
-    //Create folder
-    for (let dir of listFolderPath) {
-      await fs.promises.mkdir(path.join(outputPath, dir).replaceAll(" ", "_"), {
-        recursive: true,
-      });
-    }
-
-    for (let filePath of filesPathList) {
-      //Read file data
-      const data = await fs.promises.readFile(inputPaths, "utf8");
-
-      //Remove root folder
-      filePath = filePath.split(/\\|\//);
-      filePath.shift();
-      const noRootFilePath = filePath.join("/");
-
-      //Create the html file
-      let createdFileName = await createHtmlFile(
-        path.basename(noRootFilePath),
-        data,
-        stylesheet,
-        path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(" ", "_")
-      );
-
-      //Add to the array routesList to generate <a> in index.html
-      routesList.push({
-        url: (/^\\|\//.test(
-          createdFileName.replace(path.normalize(outputPath), "")[0]
-        )
-          ? createdFileName.replace(path.normalize(outputPath), "").substr(1)
-          : createdFileName.replace(path.normalize(outputPath), "")
-        ).replaceAll("\\", "/"),
-        name: path.basename(createdFileName, ".html"),
-      });
-    }
-    await createIndexHtmlFile(routesList, stylesheet, outputPath);
-  }
-}
-
+// Treat Data
 const treatMarkdownData = (data) => {
-  return { title: "", content: data.split(/\r?\n/).filter((line) => line) };
+  return { title: "", content: data.split("/\r?\n/").filter((line) => line) };
 };
 
 const treatData = (data) => {
@@ -223,5 +54,173 @@ const treatData = (data) => {
 
   return dataTreated;
 };
+// createHTML
+function createHtmlFile(basename, data, stylesheet = "", outputPath) {
+  const fileName = `${basename}.html`;
+  let dataTreated = { title: "", content: "" };
+
+  if (path.extname(basename) === ".md") {
+    dataTreated = treatMarkdownData(data);
+  } else if (path.extname(basename) === ".txt") {
+    dataTreated = treatData(data);
+  }
+  let htmlOption = {
+    ...dataTreated,
+    style: stylesheet,
+    fileExtname: path.extname(basename),
+  };
+  const underscoreFileName = fileName.replaceAll(" ", "_");
+  const htmlFileName = `${underscoreFileName}.html`;
+  const htmlFilePath = path.join(outputPath, htmlFileName);
+  const html = createHtmlFile(htmlOption);
+  try {
+    fs.promise.writeFile(htmlFilePath, html);
+  } catch (err) {
+    displayError(err, errorCode3, 3);
+  }
+  //console.log(`${htmlFileName} -> created!`);
+  //return htmlFilePath;
+  console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
+  return path.join(`${outputPath}`, `${underscoreFileName}.html`);
+}
+
+//createHtmlFile generateHTML file
+
+function CreateIndexHtmlFile(routeList, stylesheet = "", outputPath) {
+  let htmlOption = {
+    routeList,
+    style: stylesheet,
+  };
+
+  //Create a new html file
+  const htmlFileName = "index.html";
+  const htmlFilePath = path.join(outputPath, htmlFileName);
+  const html = generateHTML.generateIndexHtmlTemplate(htmlOption);
+  try {
+    fs.promise.writeFile(htmlFilePath, html);
+  } catch (err) {
+    displayError(err, errorCode3, 3);
+  }
+  console.log(`${htmlFileName} -> created!`);
+  //return htmlFilePath;
+}
+
+// get all files
+async function getAllFiles(dirPath, filesPathList) {
+  const files = await fs.promises.readdir(dirPath);
+  filesPathList ||= [];
+
+  for (const file of files) {
+    const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
+    if (fileLstat.isDirectory()) {
+      filesPathList = await getAllFiles(
+        path.join(dirPath, file),
+        filesPathList
+      );
+    } else {
+      if (inputCheck.isFileSupported(path.extname(file)))
+        filesPathList.push(path.join(dirPath, file));
+    }
+  }
+  return filesPathList;
+}
+function convertToHtml(inputPaths, stylesheet = "", outputPath, isFile) {
+  let routesList = [];
+  //Check if ./dist folder exist
+  //Remove if exist
+
+  if (fs.existsSync("./dist") && outputPath === "./dist") {
+    fs.promises.rmdir("./dist", { recursive: true });
+  }
+  /*
+  await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
+    displayError(err, errorCode3, 3);
+  });
+*/
+  if (outputPath === "./dist") {
+    //Create a new folder call ./dist
+    //fs.promises.mkdir("./dist", { recursive: true });
+
+    fs.promises.mkdir("./dist", { recursive: true }, (err) => {
+      displayError(err, errorCode3, 3);
+    });
+  }
+
+  if (isFile) {
+    //Read file data
+    const data = fs.promises.readFile(inputPaths, "utf8");
+    //const data = await readFile(inputPaths);
+
+    //Create the html file
+    let createdFileName = createHtmlFile(
+      path.basename(inputPaths),
+      data,
+      stylesheet,
+      outputPath
+    );
+
+    //Add to the array routesList to generate <a> in index.html
+    routesList.push({
+      url: createdFileName
+        .replaceAll(" ", "_")
+        .replace(path.normalize(outputPath), "")
+        .substr(1),
+      name: path.basename(createdFileName.replaceAll(" ", "_"), ".html"),
+    });
+    createIndexHtmlFile(routesList, stylesheet, outputPath);
+  } else {
+    //Get allFiles
+    const filesPathList = [];
+    getAllFiles(inputPaths, filesPathList);
+
+    const listFolderPath = [];
+    //Remove root folder and removes duplicates
+    for (let filePath of filesPathList) {
+      filePath = filePath.split(/\\|\//);
+      filePath.shift();
+      filePath = filePath.join("/");
+      if (!listFolderPath.includes(path.dirname(filePath))) {
+        listFolderPath.push(path.dirname(filePath));
+      }
+    }
+
+    //Create folder
+    for (let dir of listFolderPath) {
+      fs.promises.mkdir(path.join(outputPath, dir).replaceAll(" ", "_"), {
+        recursive: true,
+      });
+    }
+
+    for (let filePath of filesPathList) {
+      //Read file data
+      const data = fs.promises.readFile(inputPaths, "utf8");
+
+      //Remove root folder
+      filePath = filePath.split(/\\|\//);
+      filePath.shift();
+      const noRootFilePath = filePath.join("/");
+
+      //Create the html file
+      let createdFileName = createHtmlFile(
+        path.basename(noRootFilePath),
+        data,
+        stylesheet,
+        path.join(outputPath, path.dirname(noRootFilePath)).replaceAll(" ", "_")
+      );
+
+      //Add to the array routesList to generate <a> in index.html
+      routesList.push({
+        url: (/^\\|\//.test(
+          createdFileName.replace(path.normalize(outputPath), "")[0]
+        )
+          ? createdFileName.replace(path.normalize(outputPath), "").substr(1)
+          : createdFileName.replace(path.normalize(outputPath), "")
+        ).replaceAll("\\", "/"),
+        name: path.basename(createdFileName, ".html"),
+      });
+    }
+    createIndexHtmlFile(routesList, stylesheet, outputPath);
+  }
+}
 
 module.exports = { convertToHtml, displayError };
