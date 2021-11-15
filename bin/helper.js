@@ -68,13 +68,27 @@ const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
     fileExtname: path.extname(basename),
   };
   const underscoreFileName = fileName.replaceAll(" ", "_");
+  /*
+  try {
+    fs.promise.writeFile(
+      path.join(`${outputPath}`, `${underscoreFileName}.html`),
+      generateHTML.generateHtmlTemplate(htmlOption)
+    );
+  } catch (err) {
+    displayError(err, errorCode3, 3);
+  }
+  */
+
   await fs.promises.writeFile(
     path.join(`${outputPath}`, `${underscoreFileName}.html`),
     generateHTML.generateHtmlTemplate(htmlOption),
+
     (err) => {
+      reject(err);
       displayError(err, errorCode7, 7);
     }
   );
+
   console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
   return path.join(`${outputPath}`, `${underscoreFileName}.html`);
 };
@@ -92,6 +106,7 @@ const createIndexHtmlFile = async (routeList, stylesheet = "", outputPath) => {
     path.join(`${outputPath}`, "index.html"),
     generateHTML.generateHtmlMenuTemplate(htmlOption),
     (err) => {
+      reject(err);
       displayError(err, errorCode8, 8);
     }
   );
@@ -180,6 +195,7 @@ const convertToHtml = async (
         path.join(outputPath, dir).replaceAll(" ", "_"),
         { recursive: true },
         (err) => {
+          reject(err);
           displayError(err, errorCode7, 7);
         }
       );
@@ -246,51 +262,50 @@ const treatData = (data) => {
 };
 
 function checkInput(input) {
-  if (fs.existsSync(input)) {
-    const filepath = fs.lstatSync(input);
-    //console.log(input);
-    if (filepath.isFile()) {
-      if (isFileSupported(path.extname(input))) {
-        isFile = true;
-        return true;
-      } else if (
-        path.extname(input) === ".css" ||
-        path.extname(input) === ".md"
-      ) {
-        return true;
-      } else {
-        displayError(true, errorCode9, 9);
-      }
-    } else if (filepath.isDirectory()) {
-      const checkTxtFile = (folderpath) => {
-        const dirContents = fs.readdirSync(dirpath);
-        for (const contents of dirContents) {
-          const dirContentLstat = fs.lstatSync(path.join(dirpath, contents));
+  if (input) {
+    // Check if path exist
+    if (fs.existsSync(input)) {
+      // Check if path is a file or directory
+      if (fs.lstatSync(input).isFile()) {
+        const extname = path.extname(input);
+        // Check if path is a file ext end with .txt, or .md
+        if (extname === ".txt" || extname === ".md" || extname === ".css") {
+          return true;
+        }
+        throw new Error("File must be a .txt or .md' or .css");
+      } else if (fs.lstatSync(input).isDirectory()) {
+        // checkValidFile recursively check if any .txt or .md file exist
+        const checkValidFile = (dirPath) => {
+          const dirContents = fs.readdirSync(dirPath);
 
-          if (dirContentLstat.isDirectory()) {
-            if (checkTextFile(path.join(dirpath, content))) {
-              return true;
-            }
-          } else {
-            if (
-              path.extname(content) === ".txt" ||
-              path.extname(content) === ".md" ||
-              path.extname(content) === ".css"
-            ) {
-              return true;
+          // Loop through the content of the directory
+          for (const dirContent of dirContents) {
+            const dirContentLstat = fs.lstatSync(
+              path.join(dirPath, dirContent)
+            );
+
+            if (dirContentLstat.isDirectory()) {
+              if (checkValidFile(path.join(dirPath, dirContent))) return true;
+            } else {
+              const extname = path.extname(dirContent);
+              if (extname === ".txt" || extname === ".md" || extname === ".css")
+                return true;
             }
           }
-        }
-        return false;
-      };
-      files = fs.readdirSync(input);
-    } else {
-      displayError(true, errorCode4, 4);
+          return false;
+        };
+
+        // Check if directory contains at least one .txt or .md file
+        const hasValidFile = checkValidFile(input);
+
+        if (!hasValidFile)
+          throw new Error("Directory doesn't contain any .txt or .md file.");
+      }
+      return true;
     }
-    //console.log(`Read folder -> ${input}`);
-    return true;
+    throw new Error("Directory or file must exist.");
   }
-  return false;
+  return true;
 }
 
 module.exports = { isFileCheck, checkInput, convertToHtml, displayError };
