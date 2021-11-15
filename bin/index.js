@@ -12,8 +12,10 @@ const path = require("path");
 const helper = require("./helper");
 let outputFolderLocal = "./dist";
 let isFile;
+
 // eslint-disable-next-line no-unused-vars
 let inputPaths = "./";
+const errorCode1 = chalk.red.bold("No supported file or folder!");
 
 //commander
 const { program } = require("commander");
@@ -79,6 +81,7 @@ if (options.version) {
   let files = [];
 
   if (process.argv[5] != undefined) {
+    console.log(process.argv[5]);
     checkInputTest1 = helper.checkInput(process.argv[5]);
     if (checkInputTest1 == false) {
       helper.displayError(true, errorCode1, 1);
@@ -86,10 +89,12 @@ if (options.version) {
     }
   }
   testInput = helper.checkInput(options.input);
+  //console.log(testInput + " " + options.input);
   if (options.output) {
     outputFolderLocal = options.output;
   }
   if (testInput == true) {
+    isFile = helper.isFileCheck(options.input);
     //do the magic of converting txt to html
     console.log("  running >>>");
     helper.convertToHtml(
