@@ -5,9 +5,9 @@ const path = require("path");
 const generateHTML = require("../generateHtmlTemplate");
 const chalk = require("chalk");
 //important variables
-const supportedExtensions = [".txt", ".md"];
+const supportedExtensions = [".txt", ".md", ".css"];
 let outputFolder = "./dist";
-
+let isFile;
 //error codes
 const errorCode1 = chalk.red.bold("No supported file or folder!");
 const errorCode2 = chalk.red.bold("File type is not supported!");
@@ -29,6 +29,17 @@ const displayError = (error, code, codeNum) => {
 
 const isFileSupported = (extension) => {
   return supportedExtensions.includes(extension);
+};
+
+const isFileCheck = (input) => {
+  const extname = path.extname(input);
+  if (extname === ".txt" || extname === ".md" || extname === ".css") {
+    return true;
+  }
+  if (fs.lstatSync(input).isDirectory()) {
+    return false;
+  }
+  return false;
 };
 
 // readFile
@@ -237,11 +248,15 @@ const treatData = (data) => {
 function checkInput(input) {
   if (fs.existsSync(input)) {
     const filepath = fs.lstatSync(input);
+    //console.log(input);
     if (filepath.isFile()) {
       if (isFileSupported(path.extname(input))) {
         isFile = true;
         return true;
-      } else if (path.extname(input) === ".css") {
+      } else if (
+        path.extname(input) === ".css" ||
+        path.extname(input) === ".md"
+      ) {
         return true;
       } else {
         displayError(true, errorCode9, 9);
@@ -272,10 +287,10 @@ function checkInput(input) {
     } else {
       displayError(true, errorCode4, 4);
     }
-    console.log(`Read folder -> ${input}`);
+    //console.log(`Read folder -> ${input}`);
     return true;
   }
   return false;
 }
 
-module.exports = { checkInput, convertToHtml, displayError };
+module.exports = { isFileCheck, checkInput, convertToHtml, displayError };
