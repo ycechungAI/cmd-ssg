@@ -28,7 +28,13 @@
     "prettier": "npx prettier --write .",
     "lint": "npm run eslint",
     "pretest": "npm run lint",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "jest",
+    "jest": "jest --verbose --",
+    "jest-watch": "jest --silent  --watch --verbose --"
+  },
+  "bin": {
+    "ssg": "./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -40,9 +46,6 @@
   ],
   "author": "Eugene Chung",
   "license": "MIT",
-  "bin": {
-    "ssgy": "node bin/index.js"
-  },
   "bugs": {
     "url": "https://github.com/ycechungAI/cmd-ssg/issues"
   },
@@ -60,6 +63,7 @@
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
     "husky": "^7.0.4",
+    "jest": "^27.3.1",
     "lint-staged": "^11.2.6",
     "prettier": "2.4.1"
   },
