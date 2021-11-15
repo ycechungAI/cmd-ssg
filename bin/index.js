@@ -10,14 +10,17 @@ const path = require("path");
 //const readline = require("readline");
 
 const helper = require("./helper");
+const checkInput = require("./inputCheck");
+const checkOutput = require("./outputCheck");
 let outputFolderLocal = "./dist";
-let isFile;
 // eslint-disable-next-line no-unused-vars
 let inputPaths = "./";
-
+let files = [];
 //commander
 const { program } = require("commander");
 //const { option } = require("yargs");
+const errorCode1 = chalk.red.bold("No supported file or folder!");
+
 program.version("0.1");
 program.option(
   "-c, --config <type>",
@@ -76,20 +79,21 @@ if (options.version) {
       : (outputFolderLocal = "dist");
   }
   // eslint-disable-next-line no-unused-vars
-  let files = [];
+  files = [];
 
   if (process.argv[5] != undefined) {
-    checkInputTest1 = helper.checkInput(process.argv[5]);
+    checkInputTest1 = checkInput.checkInput(process.argv[5]);
     if (checkInputTest1 == false) {
       helper.displayError(true, errorCode1, 1);
       process.exit(1);
     }
   }
-  testInput = helper.checkInput(options.input);
+  testInput = checkInput.checkInput(options.input);
+  testOutput = checkOutput.outputCheck(outputFolderLocal);
   if (options.output) {
     outputFolderLocal = options.output;
   }
-  if (testInput == true) {
+  if (testInput == true && testOutput == true) {
     //do the magic of converting txt to html
     console.log("  running >>>");
     helper.convertToHtml(

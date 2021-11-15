@@ -2,10 +2,11 @@
 /* eslint-disable no-undef */
 const fs = require("fs");
 const path = require("path");
+
 const generateHTML = require("../generateHtmlTemplate");
+const inputCheck = require("./inputCheck");
 const chalk = require("chalk");
 //important variables
-const supportedExtensions = [".txt", ".md"];
 let outputFolder = "./dist";
 
 //error codes
@@ -19,30 +20,15 @@ const errorCode8 = chalk.red.bold("Generate HTML file Error!");
 const errorCode9 = chalk.red.bold("File is not supported!");
 
 //Lab 5 - refactor with function
-const displayError = (error, code, codeNum) => {
+function displayError(error, code, codeNum) {
   if (error) {
     console.log(code);
-    process.exitCode = codeNum;
     throw new Error(error);
   }
-};
-
-const isFileSupported = (extension) => {
-  return supportedExtensions.includes(extension);
-};
-
-// readFile
-const readFile = (filepath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filepath, "utf-8", (error, content) => {
-      displayError(error, errorCode6, 6);
-      resolve(content);
-    });
-  });
-};
+}
 
 // createHTML
-const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
+async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
   const fileName = basename.split(".")[0];
   let dataTreated = { title: "", content: "" };
 
@@ -57,38 +43,42 @@ const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
     fileExtname: path.extname(basename),
   };
   const underscoreFileName = fileName.replaceAll(" ", "_");
-  await fs.promises.writeFile(
-    path.join(`${outputPath}`, `${underscoreFileName}.html`),
-    generateHTML.generateHtmlTemplate(htmlOption),
-    (err) => {
-      displayError(err, errorCode7, 7);
-    }
-  );
-  console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
-  return path.join(`${outputPath}`, `${underscoreFileName}.html`);
-};
+  const htmlFileName = `${underscoreFileName}.html`;
+  const htmlFilePath = path.join(outputPath, htmlFileName);
+  const html = generateHTML(htmlOption);
+  try {
+    await fs.promise.writeFile(htmlFilePath, html);
+  } catch (err) {
+    displayError(err, errorCode3, 3);
+  }
+  console.log(`${htmlFileName} -> created!`);
+  return htmlFilePath;
+  //console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
+  //return path.join(`${outputPath}`, `${underscoreFileName}.html`);
+}
 
 //createHtmlFile generateHTML file
 
-const createIndexHtmlFile = async (routeList, stylesheet = "", outputPath) => {
+async function CreateIndexHtmlFile(routeList, stylesheet = "", outputPath) {
   let htmlOption = {
     routeList,
     style: stylesheet,
   };
 
   //Create a new html file
-  await fs.promises.writeFile(
-    path.join(`${outputPath}`, "index.html"),
-    generateHTML.generateHtmlMenuTemplate(htmlOption),
-    (err) => {
-      displayError(err, errorCode8, 8);
-    }
-  );
-  console.log(`File created -> ${path.join(`${outputPath}`, "index.html")}`);
-};
+  const htmlFileName = "index.html";
+  const htmlFilePath = path.join(outputPath, htmlFileName);
+  const html = generateHTML.generateIndexHtmlTemplate(htmlOption);
+  try {
+    await fs.promise.writeFile(htmlFilePath, html);
+  } catch (err) {
+    displayError(err, errorCode3, 3);
+  }
+  console.log(`${htmlFileName} -> created!`);
+}
 
 // get all files
-const getAllFiles = async (dirPath, filesPathList) => {
+async function getAllFiles(dirPath, filesPathList) {
   const files = await fs.promises.readdir(dirPath);
   filesPathList ||= [];
 
@@ -100,35 +90,39 @@ const getAllFiles = async (dirPath, filesPathList) => {
         filesPathList
       );
     } else {
-      if (isFileSupported(path.extname(file)))
+      if (inputCheck.isFileSupported(path.extname(file)))
         filesPathList.push(path.join(dirPath, file));
     }
   }
   return filesPathList;
-};
-const convertToHtml = async (
-  inputPaths,
-  stylesheet = "",
-  outputPath,
-  isFile
-) => {
+}
+
+async function convertToHtml(inputPaths, stylesheet = "", outputPath, isFile) {
   let routesList = [];
   //Check if ./dist folder exist
   //Remove if exist
   if (fs.existsSync("./dist") && outputPath === "./dist") {
+    await fs.promises.rm("./dist", { recursive: true });
+  }
+  /*
     await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
       displayError(err, errorCode3, 3);
     });
   }
+  */
   if (outputPath === "./dist")
     //Create a new folder call ./dist
+    await fs.promises.mkdir("./dist", { recursive: true });
+
+  /*
     await fs.promises.mkdir("./dist", { recursive: true }, (err) => {
       displayError(err, errorCode3, 3);
     });
-
+    */
   if (isFile) {
     //Read file data
-    const data = await readFile(inputPaths);
+    const data = await fs.promises.readFile(inputPaths, "utf8");
+    //const data = await readFile(inputPaths);
 
     //Create the html file
     let createdFileName = await createHtmlFile(
@@ -165,18 +159,14 @@ const convertToHtml = async (
 
     //Create folder
     for (let dir of listFolderPath) {
-      await fs.promises.mkdir(
-        path.join(outputPath, dir).replaceAll(" ", "_"),
-        { recursive: true },
-        (err) => {
-          displayError(err, errorCode7, 7);
-        }
-      );
+      await fs.promises.mkdir(path.join(outputPath, dir).replaceAll(" ", "_"), {
+        recursive: true,
+      });
     }
 
     for (let filePath of filesPathList) {
       //Read file data
-      const data = await readFile(filePath);
+      const data = await fs.promises.readFile(inputPaths, "utf8");
 
       //Remove root folder
       filePath = filePath.split(/\\|\//);
@@ -204,7 +194,7 @@ const convertToHtml = async (
     }
     await createIndexHtmlFile(routesList, stylesheet, outputPath);
   }
-};
+}
 
 const treatMarkdownData = (data) => {
   return { title: "", content: data.split(/\r?\n/).filter((line) => line) };
@@ -234,48 +224,4 @@ const treatData = (data) => {
   return dataTreated;
 };
 
-function checkInput(input) {
-  if (fs.existsSync(input)) {
-    const filepath = fs.lstatSync(input);
-    if (filepath.isFile()) {
-      if (isFileSupported(path.extname(input))) {
-        isFile = true;
-        return true;
-      } else if (path.extname(input) === ".css") {
-        return true;
-      } else {
-        displayError(true, errorCode9, 9);
-      }
-    } else if (filepath.isDirectory()) {
-      const checkTxtFile = (folderpath) => {
-        const dirContents = fs.readdirSync(dirpath);
-        for (const contents of dirContents) {
-          const dirContentLstat = fs.lstatSync(path.join(dirpath, contents));
-
-          if (dirContentLstat.isDirectory()) {
-            if (checkTextFile(path.join(dirpath, content))) {
-              return true;
-            }
-          } else {
-            if (
-              path.extname(content) === ".txt" ||
-              path.extname(content) === ".md" ||
-              path.extname(content) === ".css"
-            ) {
-              return true;
-            }
-          }
-        }
-        return false;
-      };
-      files = fs.readdirSync(input);
-    } else {
-      displayError(true, errorCode4, 4);
-    }
-    console.log(`Read folder -> ${input}`);
-    return true;
-  }
-  return false;
-}
-
-module.exports = { checkInput, convertToHtml, displayError };
+module.exports = { convertToHtml, displayError };
