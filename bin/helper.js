@@ -36,9 +36,7 @@ const isFileCheck = (input) => {
   if (extname === ".txt" || extname === ".md" || extname === ".css") {
     return true;
   }
-  if (fs.lstatSync(input).isDirectory()) {
-    return false;
-  }
+  //if it is a folder return false
   return false;
 };
 
