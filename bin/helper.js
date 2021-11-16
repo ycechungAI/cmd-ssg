@@ -49,11 +49,6 @@ const readFile = (filepath) => {
     });
   });
 };
-
-function createHtmlFileTest(basename, data, stylesheet, outputPath) {
-  const test = createHtmlFile(basename, data, stylesheet, outputPath);
-  return test;
-}
 // createHTML
 async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
   const fileName = basename.split(".")[0];
@@ -80,7 +75,6 @@ async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
     displayError(err, errorCode3, 3);
   }
   */
-
   await fs.promises.writeFile(
     path.join(`${outputPath}`, `${underscoreFileName}.html`),
     generateHTML.generateHtmlTemplate(htmlOption),
@@ -92,7 +86,27 @@ async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
   );
 
   console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
-  //path.join(`${outputPath}`, `${underscoreFileName}.html`);
+  return path.join(`${outputPath}`, `${underscoreFileName}.html`);
+}
+
+async function createHtmlFileTest(basename, data, stylesheet = "", outputPath) {
+  const fileName = basename.split(".")[0];
+  let dataTreated = { title: "", content: "" };
+
+  if (path.extname(basename) === ".md") {
+    dataTreated = treatMarkdownData(data);
+  } else if (path.extname(basename) === ".txt") {
+    dataTreated = treatData(data);
+  }
+  let htmlOption = {
+    ...dataTreated,
+    style: stylesheet,
+    fileExtname: path.extname(basename),
+  };
+  const underscoreFileName = fileName.replaceAll(" ", "_");
+
+  //dont actually write the file.
+
   return generateHTML.generateHtmlTemplate(htmlOption);
 }
 
@@ -315,4 +329,5 @@ module.exports = {
   convertToHtml,
   displayError,
   createHtmlFile,
+  createHtmlFileTest,
 };

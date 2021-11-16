@@ -1,5 +1,7 @@
+/* eslint-disable quotes */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
+const path = require("path");
 const { isFileCheck } = require("./../bin/helper");
 
 describe("IsFileCheck check", () => {
@@ -42,26 +44,28 @@ describe("Input argv check", () => {
 });
 
 //ADDING MORE TESTS - Rendering HTML content
-const { createHtmlFile } = require("./../bin/helper");
+const { createHtmlFileTest } = require("./../bin/helper");
 describe("Render HTML", () => {
   it("Check for correct input file", () => {
-    const expectedHtml = `<!doctype html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        <h1>"Document"</h1>
-    </body>
-    </html>
-    `;
-    return createHtmlFile(
-      "htmltest1",
-      "./sample_txt/htmltest1.txt",
+    //console.log(path.basename("./sample_txt/htmltest1.txt"));
+    const expectedHtml = `<!doctypehtml>
+    <htmllang="en">
+      <head>
+        <metacharset="UTF-8">
+        <title>TitleOfTest</title>
+        <metahttp-equiv="X-UA-Compatible"content="IE=edge">
+        <metaname="viewport"content="width=device-width,initial-scale=1.0">
+        <linkrel="stylesheet"href="">
+      </head>
+      <body>
+        <h1>TitleOfTest</h1>
+        <p>first paragraph.</p>
+        <p>second paragraph.</p>
+      </body>
+    </html>`;
+    return createHtmlFileTest(
+      "htmltest1.txt",
+      "Title Of Test\n\n\nfirst paragraph.\n\nsecond paragraph.",
       "",
       "./dist"
     ).then((data) => {
