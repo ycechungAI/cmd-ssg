@@ -36,4 +36,6 @@ scripts to run from package.json
 3. "npm run pretest"         - run lint / eslint
      "npm run eslint/lint"   - same as above
      "npm run eslint-fix"    - tries to fix all errors
+4. "npm run jest             - run tests
+5. "npm run test"            - runs everything above
 ```
