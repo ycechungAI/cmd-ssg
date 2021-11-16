@@ -9,6 +9,7 @@ let process = require("process");
 const path = require("path");
 //const readline = require("readline");
 
+const checkOutput = require("./outputCheck");
 const helper = require("./helper");
 let outputFolderLocal = "./dist";
 let isFile;
@@ -89,11 +90,14 @@ if (options.version) {
     }
   }
   testInput = helper.checkInput(options.input);
+
   //console.log(testInput + " " + options.input);
   if (options.output) {
     outputFolderLocal = options.output;
   }
-  if (testInput == true) {
+  testOutput = checkOutput.outputCheck(outputFolderLocal);
+
+  if (testInput == true && testOutput == true) {
     isFile = helper.isFileCheck(options.input);
     //do the magic of converting txt to html
     console.log("  running >>>");
