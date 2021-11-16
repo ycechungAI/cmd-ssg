@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-const fs = require("fs");
 const { isFileCheck } = require("./../bin/helper");
 
 describe("IsFileCheck check", () => {
