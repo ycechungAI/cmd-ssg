@@ -114,7 +114,10 @@ const createIndexHtmlFile = async (routeList, stylesheet = "", outputPath) => {
 // get all files
 const getAllFiles = async (dirPath, filesPathList) => {
   const files = await fs.promises.readdir(dirPath);
-  filesPathList ||= [];
+ 
+  //filePathList ||= [];  //x || (x = y); - need support for node 14 and below
+  filePathList = (filesPathList) || (filePathList = []);
+  
 
   for (const file of files) {
     const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
