@@ -54,7 +54,7 @@ const generateHtmlTemplate = (options) => {
         <link rel="stylesheet" href="${options.style}">
     </head>
     <body>
-        <h1>"${options.title || "Document"}"</h1>
+        <h1>${options.title || "Document"}</h1>
         ${renderContent(options)}
     </body>
     </html>
@@ -62,27 +62,27 @@ const generateHtmlTemplate = (options) => {
 };
 
 const generateHtmlMenuTemplate = (options) => {
-  return `
-    <!doctype html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Home</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="${options.style}">
-    </head>
-    <body>
-        <h1>Home menu</h1>
-        <h2>Summary</h2>
-            <ul>
-        ${options.routeList
-          .map((route) => `<li><a href='${route.url}'>${route.name}</a></li>`)
-          .join("\n")}
-        </ul>
-    </body>
-    </html>
-    `;
+  return (
+    `<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="${options.style}">
+</head>
+<body>
+    <h1>Home menu</h1>
+    <h2>Summary</h2>` +
+    `<ul>
+    ${options.routeList
+      .map((route) => `<li><a href='${route.url}'>${route.name}</a></li>`)
+      .join("\n")}
+    </ul>
+</body>
+</html>`
+  );
 };
 
 module.exports = { generateHtmlTemplate, generateHtmlMenuTemplate };
