@@ -50,8 +50,12 @@ const readFile = (filepath) => {
   });
 };
 
+function createHtmlFileTest(basename, data, stylesheet, outputPath) {
+  const test = createHtmlFile(basename, data, stylesheet, outputPath);
+  return test;
+}
 // createHTML
-const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
+async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
   const fileName = basename.split(".")[0];
   let dataTreated = { title: "", content: "" };
 
@@ -88,8 +92,9 @@ const createHtmlFile = async (basename, data, stylesheet = "", outputPath) => {
   );
 
   console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
-  return path.join(`${outputPath}`, `${underscoreFileName}.html`);
-};
+  //path.join(`${outputPath}`, `${underscoreFileName}.html`);
+  return generateHTML.generateHtmlTemplate(htmlOption);
+}
 
 //createHtmlFile generateHTML file
 
@@ -114,10 +119,9 @@ const createIndexHtmlFile = async (routeList, stylesheet = "", outputPath) => {
 // get all files
 const getAllFiles = async (dirPath, filesPathList) => {
   const files = await fs.promises.readdir(dirPath);
- 
+
   //filePathList ||= [];  //x || (x = y); - need support for node 14 and below
-  filePathList = (filesPathList) || (filePathList = []);
-  
+  filePathList = filesPathList || (filePathList = []);
 
   for (const file of files) {
     const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
@@ -133,12 +137,8 @@ const getAllFiles = async (dirPath, filesPathList) => {
   }
   return filesPathList;
 };
-const convertToHtml = async (
-  inputPaths,
-  stylesheet = "",
-  outputPath,
-  isFile
-) => {
+
+async function convertToHtml(inputPaths, stylesheet = "", outputPath, isFile) {
   let routesList = [];
   //Check if ./dist folder exist
   //Remove if exist
@@ -232,7 +232,7 @@ const convertToHtml = async (
     }
     await createIndexHtmlFile(routesList, stylesheet, outputPath);
   }
-};
+}
 
 const treatMarkdownData = (data) => {
   return { title: "", content: data.split(/\r?\n/).filter((line) => line) };
@@ -309,4 +309,10 @@ function checkInput(input) {
   return true;
 }
 
-module.exports = { isFileCheck, checkInput, convertToHtml, displayError };
+module.exports = {
+  isFileCheck,
+  checkInput,
+  convertToHtml,
+  displayError,
+  createHtmlFile,
+};
