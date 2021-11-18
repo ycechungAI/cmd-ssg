@@ -41,6 +41,11 @@ describe("Input argv check", () => {
       expect(e.message).toBe("Directory or file must exist.");
     }
   });
+
+  it("Check for empty argument", () => {
+    checkInput();
+    expect(true).toBe(true);
+  });
 });
 
 //ADDING MORE TESTS - Rendering HTML content
