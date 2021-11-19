@@ -103,7 +103,7 @@ async function createHtmlFileTest(basename, data, stylesheet = "", outputPath) {
     style: stylesheet,
     fileExtname: path.extname(basename),
   };
-  const underscoreFileName = fileName.replaceAll(" ", "_");
+  //const underscoreFileName = fileName.replaceAll(" ", "_");
 
   //dont actually write the file.
 
@@ -330,4 +330,5 @@ module.exports = {
   displayError,
   createHtmlFile,
   createHtmlFileTest,
+  createIndexHtmlFile
 };

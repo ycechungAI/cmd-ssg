@@ -3,6 +3,7 @@
 /* eslint-disable no-undef */
 const path = require("path");
 const { isFileCheck } = require("./../bin/helper");
+const { createIndexHtmlFile } = require("./../bin/helper");
 
 describe("IsFileCheck check", () => {
   it("Check for correct file", () => {
@@ -77,5 +78,29 @@ describe("Render HTML", () => {
       console.log(data.replace(/\s/g, ""));
       expect(data.replace(/\s/g, "")).toBe(expectedHtml.replace(/\s/g, ""));
     });
+  });
+
+  describe("Should IsFileCheck return false with .docx, .cs, .html",()=> {
+    it("Check for .docx", () => {
+      const file = ".docx";
+      expect(isFileCheck(file)).toBe(false);
+    });
+
+    it("Check for .cs", () => {
+      const file = ".cs";
+      expect(isFileCheck(file)).toBe(false);
+    });
+
+    it("Check for .html", () => {
+      const file = ".html";
+      expect(isFileCheck(file)).toBe(false);
+    });
+  });
+
+  const fs = require('fs');
+  test("Should createIndexHtmlFile generate index.html", async ()=>{
+    await createIndexHtmlFile(['dummpy1', 'dummy2'],"",'./dist'); 
+    const result =  fs.existsSync('./dist/index.html');
+    expect(result).toBe(true);
   });
 });
