@@ -1,0 +1,6 @@
+{
+  "input": "examples",
+  "output": "dist",
+  "stylesheet": "/sample_css/new.css",
+  "future-implementation": "future work to be done"
+}
