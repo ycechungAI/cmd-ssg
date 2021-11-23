@@ -5,13 +5,13 @@
      style="float: left; margin-right: 10px;" />
 
 ```text
-deliverable 0.1 for OSD600 open source course at seneca
+deliverable for OSD600 open source course at seneca
 ```
 
 ## Description: command-line-static site tool
 
 ```text
-  VERSION    : 0.1.0
+  VERSION    : 1.0.2
   Use        : Process input .txt or .md files into generated .html files.
 ```
 

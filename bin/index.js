@@ -21,12 +21,12 @@ const errorCode1 = chalk.red.bold("No supported file or folder!");
 //commander
 const { program } = require("commander");
 //const { option } = require("yargs");
-program.version("0.1");
+program.version("1.0.2");
 program.option(
   "-c, --config <type>",
   "enter the config.json file with options to be added here"
 );
-program.option("-v, --version", "version 0.1");
+program.option("-v, --version", "version 1.0.2");
 program.option("-h, --help", "help for cmd-svg");
 program.option("-i, --input <input>", "specify input file or folder");
 program.option("-s, --stylesheet <input>", "specify a stylesheet file");
