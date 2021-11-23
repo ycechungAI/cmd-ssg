@@ -1,5 +1,5 @@
 Description: command-line-static site tool
-VERSION : 0.01
+VERSION : 1.0.0
 Use : process input .txt files into generated .html files.
 
 DONE :

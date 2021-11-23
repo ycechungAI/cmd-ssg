@@ -1,10 +1,10 @@
 {
-  "name": "cmd-ssg",
+  "name": "@ycechung/cmd-ssg",
   "engines": {
     "node": ">=16.9.1",
     "npm": ">=7.21.1"
   },
-  "version": "0.1.0",
+  "version": "1.0.2",
   "description": "cli .txt to html converter",
   "main": "./bin/index.js",
   "dependencies": {
@@ -34,7 +34,7 @@
     "jest-watch": "jest --silent  --watch --verbose --"
   },
   "bin": {
-    "ssg": "./src/index.js"
+    "ssg": "bin/index.js"
   },
   "repository": {
     "type": "git",
@@ -70,5 +70,9 @@
   "lint-staged": {
     "*.js": "eslint --cache --fix",
     "*.{js,css,md}": "prettier --write"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   }
 }
