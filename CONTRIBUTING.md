@@ -30,10 +30,10 @@ ssgy -c config.json
 
 ## Use
 
-# ====================================
-
+```
 node bin/index.js -h
 node bin/index.js -i <file/folder> with .txt or .md files -s <stylesheet.css>
+```
 
 ## Development Checks
 
