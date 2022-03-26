@@ -15,6 +15,9 @@ git clone <this repo>
 
 npm install -g . or npm install if you are just testing
 
+!update - March 2022
+use yarn, then yarn install
+
 ssgy <command option>    or    ./bin/index.js <command option> to be safe
 
 Example Use:
@@ -24,6 +27,13 @@ ssgy -i <file/folder with .txt or .md files> -s <stylesheet.css>
 # If you dont like typing commands use json file
 ssgy -c config.json
 ```
+
+## Use
+
+# ====================================
+
+node bin/index.js -h
+node bin/index.js -i <file/folder> with .txt or .md files -s <stylesheet.css>
 
 ## Development Checks
 
