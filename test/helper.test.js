@@ -80,7 +80,7 @@ describe("Render HTML", () => {
     });
   });
 
-  describe("Should IsFileCheck return false with .docx, .cs, .html",()=> {
+  describe("Should IsFileCheck return false with .docx, .cs, .html", () => {
     it("Check for .docx", () => {
       const file = ".docx";
       expect(isFileCheck(file)).toBe(false);
@@ -97,10 +97,10 @@ describe("Render HTML", () => {
     });
   });
 
-  const fs = require('fs');
-  test("Should createIndexHtmlFile generate index.html", async ()=>{
-    await createIndexHtmlFile(['dummpy1', 'dummy2'],"",'./dist'); 
-    const result =  fs.existsSync('./dist/index.html');
+  const fs = require("fs");
+  test("Should createIndexHtmlFile generate index.html", async () => {
+    await createIndexHtmlFile(["dummpy1", "dummy2"], "", "./dist");
+    const result = fs.existsSync("./dist/index.html");
     expect(result).toBe(true);
   });
 });

@@ -330,5 +330,5 @@ module.exports = {
   displayError,
   createHtmlFile,
   createHtmlFileTest,
-  createIndexHtmlFile
+  createIndexHtmlFile,
 };

@@ -44,5 +44,6 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "files.eol": "\n",
-  "files.insertFinalNewline": true
+  "files.insertFinalNewline": true,
+  "githubPullRequests.ignoredPullRequestBranches": ["main"]
 }
