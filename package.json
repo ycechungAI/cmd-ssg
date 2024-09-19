@@ -14,7 +14,7 @@
     "clear": "^0.1.0",
     "cli-boxes": "^2.2.1",
     "commander": "^8.1.0",
-    "fastify": "^3.21.3",
+    "fastify": "^5.0.0",
     "figlet": "^1.5.2",
     "markdown-it": "^12.2.0",
     "y18n": "^4.0.3",
