@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 const fs = require("fs");
+const util = require("util");
 const path = require("path");
 const generateHTML = require("../generateHtmlTemplate");
 const chalk = require("chalk");
@@ -41,14 +42,7 @@ const isFileCheck = (input) => {
 };
 
 // readFile
-const readFile = (filepath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filepath, "utf-8", (error, content) => {
-      displayError(error, errorCode6, 6);
-      resolve(content);
-    });
-  });
-};
+const readFile = util.promisify(fs.readFile);
 // createHTML
 async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
   const fileName = basename.split(".")[0];
