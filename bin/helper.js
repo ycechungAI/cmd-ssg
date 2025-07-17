@@ -65,27 +65,21 @@ async function createHtmlFile(basename, data, stylesheet = "", outputPath) {
     fileExtname: path.extname(basename),
   };
   const underscoreFileName = fileName.replaceAll(" ", "_");
-  /*
   try {
-    fs.promise.writeFile(
+    await fs.promises.writeFile(
       path.join(`${outputPath}`, `${underscoreFileName}.html`),
       generateHTML.generateHtmlTemplate(htmlOption)
     );
   } catch (err) {
     displayError(err, errorCode3, 3);
   }
-  */
-  await fs.promises.writeFile(
-    path.join(`${outputPath}`, `${underscoreFileName}.html`),
-    generateHTML.generateHtmlTemplate(htmlOption),
 
-    (err) => {
-      reject(err);
-      displayError(err, errorCode7, 7);
-    }
+  console.log(
+    `File created -> ${path.join(
+      `${outputPath}`,
+      `${underscoreFileName}.html`
+    )}`
   );
-
-  console.log(`File created -> ${path.join(`${underscoreFileName}.html`)}`);
   return path.join(`${outputPath}`, `${underscoreFileName}.html`);
 }
 
@@ -119,14 +113,14 @@ const createIndexHtmlFile = async (routeList, stylesheet = "", outputPath) => {
   };
 
   //Create a new html file
-  await fs.promises.writeFile(
-    path.join(`${outputPath}`, "index.html"),
-    generateHTML.generateHtmlMenuTemplate(htmlOption),
-    (err) => {
-      reject(err);
-      displayError(err, errorCode8, 8);
-    }
-  );
+  try {
+    await fs.promises.writeFile(
+      path.join(`${outputPath}`, "index.html"),
+      generateHTML.generateHtmlMenuTemplate(htmlOption)
+    );
+  } catch (err) {
+    displayError(err, errorCode8, 8);
+  }
   console.log(`File created -> ${path.join(`${outputPath}`, "index.html")}`);
 };
 
@@ -157,15 +151,19 @@ async function convertToHtml(inputPaths, stylesheet = "", outputPath, isFile) {
   //Check if ./dist folder exist
   //Remove if exist
   if (fs.existsSync("./dist") && outputPath === "./dist") {
-    await fs.promises.rm("./dist", { force: true, recursive: true }, (err) => {
+    try {
+      await fs.promises.rm("./dist", { force: true, recursive: true });
+    } catch (err) {
       displayError(err, errorCode3, 3);
-    });
+    }
   }
   if (outputPath === "./dist")
     //Create a new folder call ./dist
-    await fs.promises.mkdir("./dist", { recursive: true }, (err) => {
+    try {
+      await fs.promises.mkdir("./dist", { recursive: true });
+    } catch (err) {
       displayError(err, errorCode3, 3);
-    });
+    }
 
   if (isFile) {
     //Read file data
@@ -206,14 +204,14 @@ async function convertToHtml(inputPaths, stylesheet = "", outputPath, isFile) {
 
     //Create folder
     for (let dir of listFolderPath) {
-      await fs.promises.mkdir(
-        path.join(outputPath, dir).replaceAll(" ", "_"),
-        { recursive: true },
-        (err) => {
-          reject(err);
-          displayError(err, errorCode7, 7);
-        }
-      );
+      try {
+        await fs.promises.mkdir(
+          path.join(outputPath, dir).replaceAll(" ", "_"),
+          { recursive: true }
+        );
+      } catch (err) {
+        displayError(err, errorCode7, 7);
+      }
     }
 
     for (let filePath of filesPathList) {
