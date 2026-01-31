@@ -28,10 +28,20 @@ SOFTWARE.
 **/
 const markdown = require("./lib/parser/markdown");
 
+const escapeHtml = (unsafe) => {
+  if (unsafe === undefined || unsafe === null) return "";
+  return unsafe.toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 const renderContent = (options) => {
   if (options.fileExtname === ".txt") {
     return options.content
-      .map((phrases) => `<p>${phrases.trim()}</p>\n`)
+      .map((phrases) => `<p>${escapeHtml(phrases.trim())}</p>\n`)
       .join("\n");
   } else if (options.fileExtname === ".md") {
     return options.content
@@ -48,13 +58,13 @@ const generateHtmlTemplate = (options) => {
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>${options.title || "Document"}</title>
+        <title>${escapeHtml(options.title || "Document")}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="${options.style}">
     </head>
     <body>
-        <h1>${options.title || "Document"}</h1>
+        <h1>${escapeHtml(options.title || "Document")}</h1>
         ${renderContent(options)}
     </body>
     </html>
@@ -77,7 +87,7 @@ const generateHtmlMenuTemplate = (options) => {
     <h2>Summary</h2>` +
     `<ul>
     ${options.routeList
-      .map((route) => `<li><a href='${route.url}'>${route.name}</a></li>`)
+      .map((route) => `<li><a href='${route.url}'>${escapeHtml(route.name)}</a></li>`)
       .join("\n")}
     </ul>
 </body>

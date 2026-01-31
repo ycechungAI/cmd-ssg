@@ -241,13 +241,13 @@ async function convertToHtml(inputPaths, stylesheet = "", outputPath, isFile) {
 }
 
 const treatMarkdownData = (data) => {
-  return { title: "", content: data.split(/\r?\n/).filter((line) => line) };
+  return { title: "", content: data.toString().split(/\r?\n/).filter((line) => line) };
 };
 
 const treatData = (data) => {
   let dataTreated = { title: "", content: "" };
   //convert data into an array
-  data = data.split("\n").map((sentence) => sentence.replace(/\r/g, ""));
+  data = data.toString().split("\n").map((sentence) => sentence.replace(/\r/g, ""));
 
   if (data.length >= 3) {
     //Check if title exist
