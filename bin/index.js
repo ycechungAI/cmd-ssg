@@ -7,6 +7,7 @@ const figlet = require("figlet");
 let process = require("process");
 // eslint-disable-next-line no-unused-vars
 const path = require("path");
+const fs = require("fs");
 //const readline = require("readline");
 
 const checkOutput = require("./outputCheck");
@@ -69,7 +70,7 @@ if (options.version) {
 } else {
   //check if input is file or folder and if it exists
   if (options.config) {
-    const configFile = require("../" + options.config);
+    const configFile = JSON.parse(fs.readFileSync(options.config));
     configFile.input ? (options.input = configFile.input) : process.exit(1);
     configFile.stylesheet
       ? (options.stylesheet = configFile.stylesheet)
