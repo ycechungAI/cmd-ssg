@@ -7,3 +7,7 @@
 **Vulnerability:** The CLI tool used `require()` to load a user-provided configuration file. This allowed an attacker to execute arbitrary code by supplying a malicious `.js` file instead of a `.json` file.
 **Learning:** `require()` is not safe for loading user-supplied data files, even if intended for configuration, because it executes JavaScript.
 **Prevention:** Use `fs.readFileSync()` and `JSON.parse()` to strictly load and parse configuration files as data, preventing code execution.
+## 2026-02-28 - [XSS Fix]
+**Vulnerability:** Unescaped style attribute in HTML template.
+**Learning:** Even internal configuration/argument inputs to templates must be escaped to prevent arbitrary code execution if inputs can be controlled by users.
+**Prevention:** Always wrap variables injected into HTML attributes with an HTML escaping function.
