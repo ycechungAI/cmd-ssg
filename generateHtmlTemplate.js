@@ -61,7 +61,7 @@ const generateHtmlTemplate = (options) => {
         <title>${escapeHtml(options.title || "Document")}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="${options.style}">
+        <link rel="stylesheet" href="${escapeHtml(options.style)}">
     </head>
     <body>
         <h1>${escapeHtml(options.title || "Document")}</h1>
@@ -80,14 +80,14 @@ const generateHtmlMenuTemplate = (options) => {
     <title>Home</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="${options.style}">
+    <link rel="stylesheet" href="${escapeHtml(options.style)}">
 </head>
 <body>
     <h1>Home menu</h1>
     <h2>Summary</h2>` +
     `<ul>
     ${options.routeList
-      .map((route) => `<li><a href='${route.url}'>${escapeHtml(route.name)}</a></li>`)
+      .map((route) => `<li><a href='${escapeHtml(route.url)}'>${escapeHtml(route.name)}</a></li>`)
       .join("\n")}
     </ul>
 </body>
