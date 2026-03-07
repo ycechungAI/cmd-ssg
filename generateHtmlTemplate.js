@@ -87,7 +87,7 @@ const generateHtmlMenuTemplate = (options) => {
     <h2>Summary</h2>` +
     `<ul>
     ${options.routeList
-      .map((route) => `<li><a href='${route.url}'>${escapeHtml(route.name)}</a></li>`)
+      .map((route) => `<li><a href='${escapeHtml(route.url)}'>${escapeHtml(route.name)}</a></li>`)
       .join("\n")}
     </ul>
 </body>
