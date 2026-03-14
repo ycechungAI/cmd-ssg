@@ -71,6 +71,23 @@ const generateHtmlTemplate = (options) => {
     `;
 };
 
+const sanitizeUrl = (url) => {
+  if (url === undefined || url === null) return "";
+  try {
+    const decodedUrl = decodeURIComponent(url.toString()).trim().toLowerCase();
+    if (decodedUrl.startsWith("javascript:") || decodedUrl.startsWith("data:") || decodedUrl.startsWith("vbscript:")) {
+      return "about:blank";
+    }
+  } catch (e) {
+    // If decodeURIComponent fails (e.g., malformed URI), fallback to simple lowercase check
+    const simpleUrl = url.toString().trim().toLowerCase();
+    if (simpleUrl.startsWith("javascript:") || simpleUrl.startsWith("data:") || simpleUrl.startsWith("vbscript:")) {
+      return "about:blank";
+    }
+  }
+  return url.toString();
+};
+
 const generateHtmlMenuTemplate = (options) => {
   return (
     `<!doctype html>
@@ -87,7 +104,7 @@ const generateHtmlMenuTemplate = (options) => {
     <h2>Summary</h2>` +
     `<ul>
     ${options.routeList
-      .map((route) => `<li><a href='${escapeHtml(route.url)}'>${escapeHtml(route.name)}</a></li>`)
+      .map((route) => `<li><a href='${escapeHtml(sanitizeUrl(route.url))}'>${escapeHtml(route.name)}</a></li>`)
       .join("\n")}
     </ul>
 </body>
