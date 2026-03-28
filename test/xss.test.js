@@ -32,4 +32,31 @@ describe("Security XSS Checks", () => {
       // So checking if title is escaped in output
     });
   });
+  it("Should sanitize javascript: URLs in stylesheet option", () => {
+    const maliciousStyle = "javascript:alert(1)";
+    return createHtmlFileTest(
+      "test.txt",
+      "Safe content",
+      maliciousStyle,
+      "./dist"
+    ).then((html) => {
+      // The href should be empty because of sanitization
+      expect(html).toContain("href=\"\"");
+      expect(html).not.toContain("href=\"javascript:alert(1)\"");
+    });
+  });
+
+  it("Should sanitize data: URLs in stylesheet option", () => {
+    const maliciousStyle = "data:text/html,<script>alert(1)</script>";
+    return createHtmlFileTest(
+      "test.txt",
+      "Safe content",
+      maliciousStyle,
+      "./dist"
+    ).then((html) => {
+      // The href should be empty because of sanitization
+      expect(html).toContain("href=\"\"");
+      expect(html).not.toContain("href=\"data:text/html\"");
+    });
+  });
 });
