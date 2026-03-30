@@ -23,4 +23,20 @@ describe("Security Check", () => {
     // And definitely not the raw string which would break out of the attribute
     expect(outputHtml).not.toContain(`href="${maliciousStyle}"`);
   });
+
+  it("Should sanitize malicious protocol schemes to prevent XSS", async () => {
+    const maliciousStyle = "javascript:alert(1)";
+    const expectedEscapedStyle = "";
+
+    const outputHtml = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle,
+      "./dist"
+    );
+
+    // We expect the href attribute to contain the sanitized empty string
+    expect(outputHtml).toContain(`href="${expectedEscapedStyle}"`);
+    expect(outputHtml).not.toContain(`href="${maliciousStyle}"`);
+  });
 });

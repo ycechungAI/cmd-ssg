@@ -38,6 +38,16 @@ const escapeHtml = (unsafe) => {
     .replace(/'/g, "&#039;");
 };
 
+const sanitizeUrl = (url) => {
+  if (!url) return "";
+  const strUrl = url.toString().trim();
+  const lowerUrl = strUrl.toLowerCase();
+  if (lowerUrl.startsWith("javascript:") || lowerUrl.startsWith("data:") || lowerUrl.startsWith("vbscript:")) {
+    return "";
+  }
+  return strUrl;
+};
+
 const renderContent = (options) => {
   if (options.fileExtname === ".txt") {
     return options.content
@@ -61,7 +71,7 @@ const generateHtmlTemplate = (options) => {
         <title>${escapeHtml(options.title || "Document")}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="${escapeHtml(options.style)}">
+        <link rel="stylesheet" href="${escapeHtml(sanitizeUrl(options.style))}">
     </head>
     <body>
         <h1>${escapeHtml(options.title || "Document")}</h1>
@@ -97,7 +107,7 @@ const generateHtmlMenuTemplate = (options) => {
     <title>Home</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="${escapeHtml(options.style)}">
+    <link rel="stylesheet" href="${escapeHtml(sanitizeUrl(options.style))}">
 </head>
 <body>
     <h1>Home menu</h1>
