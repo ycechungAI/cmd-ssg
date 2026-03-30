@@ -32,31 +32,30 @@ describe("Security XSS Checks", () => {
       // So checking if title is escaped in output
     });
   });
-  it("Should sanitize javascript: URLs in stylesheet option", () => {
-    const maliciousStyle = "javascript:alert(1)";
-    return createHtmlFileTest(
-      "test.txt",
-      "Safe content",
-      maliciousStyle,
-      "./dist"
-    ).then((html) => {
-      // The href should be empty because of sanitization
-      expect(html).toContain("href=\"\"");
-      expect(html).not.toContain("href=\"javascript:alert(1)\"");
-    });
-  });
+  it("Should sanitize malicious route URL in HTML menu template", () => {
+    const { generateHtmlMenuTemplate } = require("../generateHtmlTemplate");
+    const maliciousOptions = {
+      style: "style.css",
+      routeList: [
+        { url: "javascript:alert(1)", name: "test1" },
+        { url: "data:text/html,<script>alert(1)</script>", name: "test2" },
+        { url: "vbscript:msgbox(\"test\")", name: "test3" },
+        { url: "JAVAScript:alert(1)", name: "test4" },
+        { url: "javascript%3Aalert(1)", name: "test5" },
+        { url: "/safe/path.html", name: "safe" }
+      ]
+    };
 
-  it("Should sanitize data: URLs in stylesheet option", () => {
-    const maliciousStyle = "data:text/html,<script>alert(1)</script>";
-    return createHtmlFileTest(
-      "test.txt",
-      "Safe content",
-      maliciousStyle,
-      "./dist"
-    ).then((html) => {
-      // The href should be empty because of sanitization
-      expect(html).toContain("href=\"\"");
-      expect(html).not.toContain("href=\"data:text/html\"");
-    });
+    const html = generateHtmlMenuTemplate(maliciousOptions);
+    expect(html).not.toContain("href='javascript:alert(1)'");
+    expect(html).not.toContain("href='data:text/html,<script>alert(1)</script>'");
+    expect(html).not.toContain("href='vbscript:msgbox(&quot;test&quot;)'");
+    expect(html).not.toContain("href='JAVAScript:alert(1)'");
+    expect(html).not.toContain("href='javascript%3Aalert(1)'");
+
+    // Check that it replaced them with about:blank
+    expect(html.match(/href='about:blank'/g).length).toBe(5);
+    // Check that the safe URL is retained
+    expect(html).toContain("href='/safe/path.html'");
   });
 });
