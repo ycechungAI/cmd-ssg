@@ -26,7 +26,7 @@ describe("Security Check", () => {
 
   it("Should sanitize malicious protocol schemes to prevent XSS", async () => {
     const maliciousStyle = "javascript:alert(1)";
-    const expectedEscapedStyle = "";
+    const expectedEscapedStyle = "about:blank";
 
     const outputHtml = await createHtmlFileTest(
       "test.txt",
