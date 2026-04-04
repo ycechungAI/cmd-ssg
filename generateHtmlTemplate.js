@@ -39,13 +39,20 @@ const escapeHtml = (unsafe) => {
 };
 
 const sanitizeUrl = (url) => {
-  if (!url) return "";
-  const strUrl = url.toString().trim();
-  const lowerUrl = strUrl.toLowerCase();
-  if (lowerUrl.startsWith("javascript:") || lowerUrl.startsWith("data:") || lowerUrl.startsWith("vbscript:")) {
-    return "";
+  if (url === undefined || url === null) return "";
+  try {
+    const decodedUrl = decodeURIComponent(url.toString()).trim().toLowerCase();
+    if (decodedUrl.startsWith("javascript:") || decodedUrl.startsWith("data:") || decodedUrl.startsWith("vbscript:")) {
+      return "about:blank";
+    }
+  } catch (e) {
+    // If decodeURIComponent fails (e.g., malformed URI), fallback to simple lowercase check
+    const simpleUrl = url.toString().trim().toLowerCase();
+    if (simpleUrl.startsWith("javascript:") || simpleUrl.startsWith("data:") || simpleUrl.startsWith("vbscript:")) {
+      return "about:blank";
+    }
   }
-  return strUrl;
+  return url.toString();
 };
 
 const renderContent = (options) => {
@@ -79,23 +86,6 @@ const generateHtmlTemplate = (options) => {
     </body>
     </html>
     `;
-};
-
-const sanitizeUrl = (url) => {
-  if (url === undefined || url === null) return "";
-  try {
-    const decodedUrl = decodeURIComponent(url.toString()).trim().toLowerCase();
-    if (decodedUrl.startsWith("javascript:") || decodedUrl.startsWith("data:") || decodedUrl.startsWith("vbscript:")) {
-      return "about:blank";
-    }
-  } catch (e) {
-    // If decodeURIComponent fails (e.g., malformed URI), fallback to simple lowercase check
-    const simpleUrl = url.toString().trim().toLowerCase();
-    if (simpleUrl.startsWith("javascript:") || simpleUrl.startsWith("data:") || simpleUrl.startsWith("vbscript:")) {
-      return "about:blank";
-    }
-  }
-  return url.toString();
 };
 
 const generateHtmlMenuTemplate = (options) => {
