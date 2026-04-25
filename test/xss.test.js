@@ -58,4 +58,24 @@ describe("Security XSS Checks", () => {
     // Check that the safe URL is retained
     expect(html).toContain("href='/safe/path.html'");
   });
+
+  it("Should sanitize URL bypasses containing control characters or whitespace", () => {
+    const { generateHtmlMenuTemplate } = require("../generateHtmlTemplate");
+    const maliciousOptions = {
+      style: "style.css",
+      routeList: [
+        { url: "java\x09script:alert(1)", name: "test1" },
+        { url: "java\nscript:alert(1)", name: "test2" },
+        { url: " java script :alert(1)", name: "test3" },
+        { url: "vbscript\r:msgbox(1)", name: "test4" },
+      ]
+    };
+
+    const html = generateHtmlMenuTemplate(maliciousOptions);
+    expect(html).not.toContain("href='java\x09script:alert(1)'");
+    expect(html).not.toContain("href='java\nscript:alert(1)'");
+    expect(html).not.toContain("href=' java script :alert(1)'");
+    expect(html).not.toContain("href='vbscript\r:msgbox(1)'");
+    expect(html.match(/href='about:blank'/g).length).toBe(4);
+  });
 });
