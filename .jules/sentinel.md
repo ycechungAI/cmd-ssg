@@ -24,3 +24,8 @@
 **Vulnerability:** The `generateHtmlMenuTemplate` function constructed a menu of links using `route.url` wrapped only in `escapeHtml`. Since `escapeHtml` merely encodes HTML entities, it permitted dangerous schemes such as `javascript:` and `data:` to be injected directly into the `<a href>` attribute, exposing users to Stored XSS if they clicked on links generated from maliciously named folders or files.
 **Learning:** Entity escaping (like `escapeHtml`) is insufficient to protect `href` or `src` attributes. URL schemes must be strictly validated or sanitized to neutralize active content schemes (`javascript:`, `vbscript:`, `data:`), even in internally generated routing paths.
 **Prevention:** Implement a dedicated URI sanitizer that decodes the URI and enforces safe schemes, or explicitly strips out malicious schemes prior to injecting URLs into HTML attributes.
+
+## 2026-04-05 - [Stored XSS Bypass via Control Characters in URL Schemes]
+**Vulnerability:** The `sanitizeUrl` function protected against malicious URL schemes (`javascript:`, `data:`, `vbscript:`) using `.startsWith()`. However, attackers could bypass this check by injecting invisible control characters or whitespaces into the scheme (e.g., `java\x09script:alert(1)`, `j\x00avascript:alert(1)`), which the browser would still execute as valid scripts.
+**Learning:** Checking for `.startsWith("javascript:")` is insufficient because URL scheme parsing in browsers ignores control characters and spaces.
+**Prevention:** Always normalize the URL scheme by stripping ASCII control characters (`\x00-\x20`) and whitespace before validating against known malicious protocols.
