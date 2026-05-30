@@ -39,4 +39,29 @@ describe("Security Check", () => {
     expect(outputHtml).toContain(`href="${expectedEscapedStyle}"`);
     expect(outputHtml).not.toContain(`href="${maliciousStyle}"`);
   });
+
+  it("Should sanitize malicious protocol schemes with control characters to prevent XSS bypass", async () => {
+    const expectedEscapedStyle = "about:blank";
+
+    const testCases = [
+      "java\nscript:alert(1)",
+      "java\x00script:alert(1)",
+      "java\rscript:alert(1)",
+      "java\tscript:alert(1)",
+      " javascript:alert(1)",
+      "javascript:alert(1) "
+    ];
+
+    for (const maliciousStyle of testCases) {
+      const outputHtml = await createHtmlFileTest(
+        "test.txt",
+        "Content",
+        maliciousStyle,
+        "./dist"
+      );
+
+      expect(outputHtml).toContain(`href="${expectedEscapedStyle}"`);
+      expect(outputHtml).not.toContain(`href="${maliciousStyle}"`);
+    }
+  });
 });
