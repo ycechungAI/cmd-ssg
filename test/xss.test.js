@@ -58,4 +58,22 @@ describe("Security XSS Checks", () => {
     // Check that the safe URL is retained
     expect(html).toContain("href='/safe/path.html'");
   });
+  it("Should sanitize malicious route URL with control characters in HTML menu template", () => {
+    const { generateHtmlMenuTemplate } = require("../generateHtmlTemplate");
+    const maliciousOptions = {
+      style: "style.css",
+      routeList: [
+        { url: "java\x09script:alert(1)", name: "test1" },
+        { url: "javascript\x0A:alert(1)", name: "test2" },
+        { url: "  java script:alert(1)", name: "test3" },
+        { url: "java%09script:alert(1)", name: "test4" }
+      ]
+    };
+
+    const html = generateHtmlMenuTemplate(maliciousOptions);
+    expect(html).not.toContain("alert(1)");
+
+    // Check that it replaced them with about:blank
+    expect(html.match(/href='about:blank'/g).length).toBe(4);
+  });
 });
