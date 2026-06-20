@@ -42,6 +42,8 @@ describe("Security XSS Checks", () => {
         { url: "vbscript:msgbox(\"test\")", name: "test3" },
         { url: "JAVAScript:alert(1)", name: "test4" },
         { url: "javascript%3Aalert(1)", name: "test5" },
+        { url: "java\x09script:alert(1)", name: "test6" },
+        { url: "java\x00script:alert(1)", name: "test7" },
         { url: "/safe/path.html", name: "safe" }
       ]
     };
@@ -52,9 +54,11 @@ describe("Security XSS Checks", () => {
     expect(html).not.toContain("href='vbscript:msgbox(&quot;test&quot;)'");
     expect(html).not.toContain("href='JAVAScript:alert(1)'");
     expect(html).not.toContain("href='javascript%3Aalert(1)'");
+    expect(html).not.toContain("href='java\x09script:alert(1)'");
+    expect(html).not.toContain("href='java\x00script:alert(1)'");
 
     // Check that it replaced them with about:blank
-    expect(html.match(/href='about:blank'/g).length).toBe(5);
+    expect(html.match(/href='about:blank'/g).length).toBe(7);
     // Check that the safe URL is retained
     expect(html).toContain("href='/safe/path.html'");
   });

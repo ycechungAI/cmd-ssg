@@ -39,4 +39,27 @@ describe("Security Check", () => {
     expect(outputHtml).toContain(`href="${expectedEscapedStyle}"`);
     expect(outputHtml).not.toContain(`href="${maliciousStyle}"`);
   });
+
+  it("Should sanitize malicious protocol schemes with control characters and whitespace to prevent XSS", async () => {
+    const maliciousStyles = [
+      "java\x09script:alert(1)",
+      "java\x00script:alert(1)",
+      " java script:alert(1)",
+      "javascript\x0A:alert(1)"
+    ];
+    const expectedEscapedStyle = "about:blank";
+
+    for (const style of maliciousStyles) {
+      const outputHtml = await createHtmlFileTest(
+        "test.txt",
+        "Content",
+        style,
+        "./dist"
+      );
+
+      // We expect the href attribute to contain the sanitized empty string
+      expect(outputHtml).toContain(`href="${expectedEscapedStyle}"`);
+      expect(outputHtml).not.toContain(`href="${style}"`);
+    }
+  });
 });
