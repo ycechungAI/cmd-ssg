@@ -40,17 +40,17 @@ const escapeHtml = (unsafe) => {
 
 const sanitizeUrl = (url) => {
   if (url === undefined || url === null) return "";
+  let cleanUrl = url.toString();
   try {
-    const decodedUrl = decodeURIComponent(url.toString()).trim().toLowerCase();
-    if (decodedUrl.startsWith("javascript:") || decodedUrl.startsWith("data:") || decodedUrl.startsWith("vbscript:")) {
-      return "about:blank";
-    }
+    cleanUrl = decodeURIComponent(cleanUrl);
   } catch (e) {
-    // If decodeURIComponent fails (e.g., malformed URI), fallback to simple lowercase check
-    const simpleUrl = url.toString().trim().toLowerCase();
-    if (simpleUrl.startsWith("javascript:") || simpleUrl.startsWith("data:") || simpleUrl.startsWith("vbscript:")) {
-      return "about:blank";
-    }
+    // If decodeURIComponent fails, we still process the raw string
+  }
+  // eslint-disable-next-line no-control-regex
+  cleanUrl = cleanUrl.replace(/[\x00-\x20\s]/g, "").toLowerCase();
+
+  if (cleanUrl.startsWith("javascript:") || cleanUrl.startsWith("data:") || cleanUrl.startsWith("vbscript:")) {
+    return "about:blank";
   }
   return url.toString();
 };
