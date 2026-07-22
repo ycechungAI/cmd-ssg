@@ -40,18 +40,22 @@ const escapeHtml = (unsafe) => {
 
 const sanitizeUrl = (url) => {
   if (url === undefined || url === null) return "";
+  // eslint-disable-next-line no-control-regex
+  const strippedUrl = url.toString().replace(/[\x00-\x20\s]/g, "");
   try {
-    let decodedUrl = decodeURIComponent(url.toString()).trim().toLowerCase();
-    // eslint-disable-next-line no-control-regex
-    decodedUrl = decodedUrl.replace(/[\x00-\x20\s]/g, "");
+    const decodedUrl = decodeURIComponent(url.toString())
+      .toLowerCase()
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x20\s]/g, "");
     if (decodedUrl.startsWith("javascript:") || decodedUrl.startsWith("data:") || decodedUrl.startsWith("vbscript:")) {
       return "about:blank";
     }
   } catch (e) {
     // If decodeURIComponent fails (e.g., malformed URI), fallback to simple lowercase check
-    let simpleUrl = url.toString().trim().toLowerCase();
-    // eslint-disable-next-line no-control-regex
-    simpleUrl = simpleUrl.replace(/[\x00-\x20\s]/g, "");
+    const simpleUrl = url.toString()
+      .toLowerCase()
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x20\s]/g, "");
     if (simpleUrl.startsWith("javascript:") || simpleUrl.startsWith("data:") || simpleUrl.startsWith("vbscript:")) {
       return "about:blank";
     }
