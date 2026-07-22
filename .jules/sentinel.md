@@ -24,8 +24,16 @@
 **Vulnerability:** The `generateHtmlMenuTemplate` function constructed a menu of links using `route.url` wrapped only in `escapeHtml`. Since `escapeHtml` merely encodes HTML entities, it permitted dangerous schemes such as `javascript:` and `data:` to be injected directly into the `<a href>` attribute, exposing users to Stored XSS if they clicked on links generated from maliciously named folders or files.
 **Learning:** Entity escaping (like `escapeHtml`) is insufficient to protect `href` or `src` attributes. URL schemes must be strictly validated or sanitized to neutralize active content schemes (`javascript:`, `vbscript:`, `data:`), even in internally generated routing paths.
 **Prevention:** Implement a dedicated URI sanitizer that decodes the URI and enforces safe schemes, or explicitly strips out malicious schemes prior to injecting URLs into HTML attributes.
+## 2024-05-24 - URL Sanitization Control Character Bypass
+**Vulnerability:** XSS bypass possible in `sanitizeUrl` using control characters and whitespace (e.g., `java\nscript:alert(1)`).
+**Learning:** URL protocol validation using basic string prefix matching (`startsWith()`) is insufficient. Browsers automatically strip whitespaces and control characters from schemes before execution.
+**Prevention:** Always strip all whitespace and control characters using regex (e.g., `.replace(/[\x00-\x20\s]/g, '')`) from the validation target before checking for dangerous schemes.
+## 2026-04-18 - [Stored XSS Bypass via Control Characters in URL Schemes]
+**Vulnerability:** The URL sanitizer (`sanitizeUrl`) in `generateHtmlTemplate.js` checked for malicious schemes like `javascript:` by looking at the start of the decoded URL. However, attackers could bypass this by inserting control characters or whitespace within the protocol (e.g., `java\x00script:` or `java\tscript:`), which browsers ignore but caused the `startsWith` check to fail, leading to Stored XSS.
+**Learning:** Checking for malicious URL schemes with simple string matching (like `startsWith`) is insufficient because browsers are highly forgiving and will execute URIs that contain hidden control characters or spaces within the protocol string.
+**Prevention:** Always strip out all whitespace and control characters (e.g., using `replace(/[\x00-\x20\s]/g, "")`) from the URL *before* checking against a blocklist of malicious schemes like `javascript:`.
 
-## 2026-05-02 - [XSS Bypass via Control Characters in URL Schemes]
-**Vulnerability:** The URL sanitizer `sanitizeUrl` attempted to block `javascript:`, `vbscript:`, and `data:` schemes using `startsWith()`, but it could be bypassed by inserting whitespace or control characters (e.g., `\x00`, `\x09`) into the scheme (e.g., `java\x09script:alert(1)`), which browsers ignore but evade simple string matching.
-**Learning:** Checking for malicious schemes requires robust normalization. Browsers are lenient with whitespace and control characters within URIs.
-**Prevention:** Always strip whitespace and control characters (e.g., using `replace(/[\x00-\x20\s]/g, "")`) *before* validating URL schemes against blocklists.
+## 2024-05-24 - [Bypass XSS URL Sanitization]
+**Vulnerability:** XSS bypass via URL scheme obfuscation (e.g., `\x19javascript:`, `java\nscript:`).
+**Learning:** Checking for malicious protocol schemes like `javascript:` using `.trim().startsWith("javascript:")` is flawed. Browsers ignore whitespace and control characters anywhere in the protocol. `.trim()` only strips leading/trailing standard whitespace, allowing attackers to embed control characters or newlines to bypass the validation.
+**Prevention:** Strip all control characters and whitespace characters (`[\x00-\x20\s]`) from the decoded URL string *before* performing the scheme check (e.g., `.startsWith()`). Only perform this destructive stripping on a validation variable, returning the original intact URL if it is determined to be safe.

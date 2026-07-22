@@ -40,16 +40,22 @@ const escapeHtml = (unsafe) => {
 
 const sanitizeUrl = (url) => {
   if (url === undefined || url === null) return "";
+  // eslint-disable-next-line no-control-regex
+  const strippedUrl = url.toString().replace(/[\x00-\x20\s]/g, "");
   try {
-    // eslint-disable-next-line no-control-regex
-    const decodedUrl = decodeURIComponent(url.toString()).replace(/[\x00-\x20\s]/g, "").trim().toLowerCase();
+    const decodedUrl = decodeURIComponent(url.toString())
+      .toLowerCase()
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x20\s]/g, "");
     if (decodedUrl.startsWith("javascript:") || decodedUrl.startsWith("data:") || decodedUrl.startsWith("vbscript:")) {
       return "about:blank";
     }
   } catch (e) {
     // If decodeURIComponent fails (e.g., malformed URI), fallback to simple lowercase check
-    // eslint-disable-next-line no-control-regex
-    const simpleUrl = url.toString().replace(/[\x00-\x20\s]/g, "").trim().toLowerCase();
+    const simpleUrl = url.toString()
+      .toLowerCase()
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x20\s]/g, "");
     if (simpleUrl.startsWith("javascript:") || simpleUrl.startsWith("data:") || simpleUrl.startsWith("vbscript:")) {
       return "about:blank";
     }
