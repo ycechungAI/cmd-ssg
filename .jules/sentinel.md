@@ -24,6 +24,11 @@
 **Vulnerability:** The `generateHtmlMenuTemplate` function constructed a menu of links using `route.url` wrapped only in `escapeHtml`. Since `escapeHtml` merely encodes HTML entities, it permitted dangerous schemes such as `javascript:` and `data:` to be injected directly into the `<a href>` attribute, exposing users to Stored XSS if they clicked on links generated from maliciously named folders or files.
 **Learning:** Entity escaping (like `escapeHtml`) is insufficient to protect `href` or `src` attributes. URL schemes must be strictly validated or sanitized to neutralize active content schemes (`javascript:`, `vbscript:`, `data:`), even in internally generated routing paths.
 **Prevention:** Implement a dedicated URI sanitizer that decodes the URI and enforces safe schemes, or explicitly strips out malicious schemes prior to injecting URLs into HTML attributes.
+
+## 2026-04-04 - [XSS Bypass via Control Characters in URL Scheme]
+**Vulnerability:** The URL scheme validation in `sanitizeUrl` could be bypassed by inserting control characters or whitespace into the scheme name (e.g., `java\tscript:alert(1)`). Browsers ignore these characters and execute the malicious script, but the simple `.trim()` check failed to detect the `javascript:` prefix.
+**Learning:** `.trim()` is insufficient for sanitizing URL schemes because it only removes leading and trailing whitespace. Browsers aggressively ignore whitespace and control characters *within* the scheme string itself.
+**Prevention:** Always strip all ASCII control characters and whitespace (e.g., using `replace(/[\x00-\x20\s]/g, "")`) from the decoded URL *before* checking against dangerous scheme prefixes.
 ## 2026-04-01 - [Stored XSS Bypass via Whitespace and Control Characters]
 **Vulnerability:** The URL scheme check in `sanitizeUrl` could be bypassed by inserting whitespace or control characters into the scheme (e.g., `java\x09script:` or `java script:`). These characters are often ignored by browsers, leading to XSS execution despite the scheme check.
 **Learning:** Scheme validation logic must strip out non-printable characters and whitespace *before* checking if the scheme is malicious, as attackers can obfuscate schemes to bypass simple `startsWith` checks.
