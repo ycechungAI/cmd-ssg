@@ -25,6 +25,10 @@
 **Learning:** Entity escaping (like `escapeHtml`) is insufficient to protect `href` or `src` attributes. URL schemes must be strictly validated or sanitized to neutralize active content schemes (`javascript:`, `vbscript:`, `data:`), even in internally generated routing paths.
 **Prevention:** Implement a dedicated URI sanitizer that decodes the URI and enforces safe schemes, or explicitly strips out malicious schemes prior to injecting URLs into HTML attributes.
 
+## 2026-04-04 - [XSS Bypass via Control Characters in URL Schemes]
+**Vulnerability:** The `sanitizeUrl` function stripped some malicious protocols like `javascript:` and `data:`, but could be bypassed by inserting control characters or whitespace into the URL scheme (e.g., `java\x09script:alert(1)`). These characters are ignored by browsers, leading to XSS execution.
+**Learning:** Checking for prefixes like `javascript:` is insufficient if control characters or spaces are permitted within the string. Browsers sanitize these characters inherently before scheme evaluation.
+**Prevention:** Always strip out control characters (`\x00-\x20`) and whitespace from parsed URLs *before* evaluating their schemes to prevent bypasses against simple prefix checks.
 ## 2026-04-18 - [XSS Bypass via Control Characters in URLs]
 **Vulnerability:** The `sanitizeUrl` function attempted to block malicious schemes (like `javascript:`) by checking the start of the URL, but an attacker could bypass this by inserting control characters (like `\x09` tab or `\x00` null byte) into the scheme (e.g., `java\x09script:`). The browser strips these characters before execution, causing Stored XSS.
 **Learning:** Checking for malicious schemes requires stripping control characters and whitespaces from the string *before* the validation step, because browsers are extremely permissive about malformed URLs.
