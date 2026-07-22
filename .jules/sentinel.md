@@ -25,6 +25,10 @@
 **Learning:** Entity escaping (like `escapeHtml`) is insufficient to protect `href` or `src` attributes. URL schemes must be strictly validated or sanitized to neutralize active content schemes (`javascript:`, `vbscript:`, `data:`), even in internally generated routing paths.
 **Prevention:** Implement a dedicated URI sanitizer that decodes the URI and enforces safe schemes, or explicitly strips out malicious schemes prior to injecting URLs into HTML attributes.
 
+## 2026-04-04 - [XSS Bypass in URL Sanitization]
+**Vulnerability:** The `sanitizeUrl` function in `generateHtmlTemplate.js` was vulnerable to XSS bypass via control characters. An attacker could inject payloads like `\x01javascript:alert(1)` which bypassed the `trim().toLowerCase()` checks and executed JavaScript when clicked.
+**Learning:** Browsers strip leading/trailing C0 control characters (`\x00` to `\x1F`) before parsing URL schemes. A naive string check like `startsWith("javascript:")` is insufficient.
+**Prevention:** Aggressively strip all C0 control characters and whitespace (using `/[\x00-\x20\s]/g`) before validating URL schemes to prevent bypasses, and add tests for edge case payloads.
 ## 2026-04-05 - [Stored XSS Bypass via Control Characters in URL Schemes]
 **Vulnerability:** The `sanitizeUrl` function protected against malicious URL schemes (`javascript:`, `data:`, `vbscript:`) using `.startsWith()`. However, attackers could bypass this check by injecting invisible control characters or whitespaces into the scheme (e.g., `java\x09script:alert(1)`, `j\x00avascript:alert(1)`), which the browser would still execute as valid scripts.
 **Learning:** Checking for `.startsWith("javascript:")` is insufficient because URL scheme parsing in browsers ignores control characters and spaces.
