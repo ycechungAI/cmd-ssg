@@ -41,13 +41,19 @@ const escapeHtml = (unsafe) => {
 const sanitizeUrl = (url) => {
   if (url === undefined || url === null) return "";
   try {
-    const decodedUrl = decodeURIComponent(url.toString()).trim().toLowerCase();
+    const decodedUrl = decodeURIComponent(url.toString())
+      .toLowerCase()
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x20\s]/g, "");
     if (decodedUrl.startsWith("javascript:") || decodedUrl.startsWith("data:") || decodedUrl.startsWith("vbscript:")) {
       return "about:blank";
     }
   } catch (e) {
     // If decodeURIComponent fails (e.g., malformed URI), fallback to simple lowercase check
-    const simpleUrl = url.toString().trim().toLowerCase();
+    const simpleUrl = url.toString()
+      .toLowerCase()
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x20\s]/g, "");
     if (simpleUrl.startsWith("javascript:") || simpleUrl.startsWith("data:") || simpleUrl.startsWith("vbscript:")) {
       return "about:blank";
     }
