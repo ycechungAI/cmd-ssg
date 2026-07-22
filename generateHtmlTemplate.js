@@ -40,6 +40,8 @@ const escapeHtml = (unsafe) => {
 
 const sanitizeUrl = (url) => {
   if (url === undefined || url === null) return "";
+  // eslint-disable-next-line no-control-regex
+  const strippedUrl = url.toString().replace(/[\x00-\x20\s]/g, "");
   try {
     const decodedUrl = decodeURIComponent(url.toString())
       .toLowerCase()
