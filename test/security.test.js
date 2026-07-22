@@ -39,4 +39,26 @@ describe("Security Check", () => {
     expect(outputHtml).toContain(`href="${expectedEscapedStyle}"`);
     expect(outputHtml).not.toContain(`href="${maliciousStyle}"`);
   });
+
+  it("Should prevent XSS bypass via control characters in URLs", async () => {
+    const maliciousStyle = "java\x00script:alert(1)";
+    const maliciousStyle2 = "java\tscript:alert(1)";
+    const expectedEscapedStyle = "about:blank";
+
+    const outputHtml1 = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle,
+      "./dist"
+    );
+    expect(outputHtml1).toContain(`href="${expectedEscapedStyle}"`);
+
+    const outputHtml2 = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle2,
+      "./dist"
+    );
+    expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
+  });
 });
