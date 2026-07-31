@@ -61,4 +61,26 @@ describe("Security Check", () => {
     );
     expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
   });
+
+  it("Should prevent XSS bypass via multiple encoding and malformed URIs", async () => {
+    const maliciousStyle1 = "java%2509script:alert(1)"; // Double encoded \t
+    const maliciousStyle2 = "java%09script:alert(1)%A0"; // Encoded \t + malformed non-breaking space
+    const expectedEscapedStyle = "about:blank";
+
+    const outputHtml1 = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle1,
+      "./dist"
+    );
+    expect(outputHtml1).toContain(`href="${expectedEscapedStyle}"`);
+
+    const outputHtml2 = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle2,
+      "./dist"
+    );
+    expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
+  });
 });
