@@ -224,7 +224,7 @@ describe("stylesheet", () => {
     run("-i", "docs", "-o", "out", "-s", "https://example.com/a.css");
     expect(read("out/one.html")).toContain('href="https://example.com/a.css"');
     expect(read("out/index.html")).toContain(
-      'href="https://example.com/a.css"'
+      'href="https://example.com/a.css"',
     );
   });
 });
@@ -235,7 +235,7 @@ describe("config file", () => {
     write("s.css", "body {}");
     write(
       "ssg.json",
-      JSON.stringify({ input: "docs", output: "site", stylesheet: "s.css" })
+      JSON.stringify({ input: "docs", output: "site", stylesheet: "s.css" }),
     );
     expect(run("-c", "ssg.json").code).toBe(0);
     expect(read("site/one.html")).toContain('href="assets/s.css"');
@@ -335,7 +335,7 @@ describe("--clean", () => {
     write("out/precious.txt", "mine");
     write(
       "ssg.json",
-      JSON.stringify({ input: "docs", output: "out", clean: true })
+      JSON.stringify({ input: "docs", output: "out", clean: true }),
     );
     expect(run("-c", "ssg.json").code).toBe(2);
     expect(read("out/precious.txt")).toBe("mine");
@@ -362,7 +362,7 @@ describe("local stylesheet", () => {
     expect(read("out/zero.html")).toContain('href="assets/my%20style.css"');
     expect(read("out/a/one.html")).toContain('href="../assets/my%20style.css"');
     expect(read("out/a/b/two.html")).toContain(
-      'href="../../assets/my%20style.css"'
+      'href="../../assets/my%20style.css"',
     );
   });
 
@@ -403,7 +403,7 @@ describe("links", () => {
     const index = read((run("-i", "docs", "-o", "out"), "out/index.html"));
     const text = index.replace(/\s+/g, " ");
     expect(text).toContain(
-      "<li><a href='a.html'>Alpha title</a></li> <li><a href='b.html'>Bravo</a></li> <li>sub <ul> <li><a href='sub/c.html'>c</a></li> </ul> </li>"
+      "<li><a href='a.html'>Alpha title</a></li> <li><a href='b.html'>Bravo</a></li> <li>sub <ul> <li><a href='sub/c.html'>c</a></li> </ul> </li>",
     );
   });
 });
@@ -412,14 +412,14 @@ describe("rendering", () => {
   it("Markdown is rendered as a whole document", () => {
     write(
       "docs/page.md",
-      "# Hello *World*\n\n```js\nconst a = 1;\n\nconst b = 2;\n```\n\n- one\n- two\n  continued\n\n| a | b |\n|---|---|\n| 1 | 2 |\n"
+      "# Hello *World*\n\n```js\nconst a = 1;\n\nconst b = 2;\n```\n\n- one\n- two\n  continued\n\n| a | b |\n|---|---|\n| 1 | 2 |\n",
     );
     run("-i", "docs", "-o", "out");
     const html = read("out/page.html");
     expect(html).toContain("<title>Hello World</title>");
     expect(html.match(/<h1>/g)).toHaveLength(1);
     expect(html).toContain(
-      '<pre><code class="language-js">const a = 1;\n\nconst b = 2;\n</code></pre>'
+      '<pre><code class="language-js">const a = 1;\n\nconst b = 2;\n</code></pre>',
     );
     expect(html).toContain("<li>two\ncontinued</li>");
     expect(html).toContain("<td>1</td>");
@@ -436,7 +436,7 @@ describe("rendering", () => {
   it("raw HTML in Markdown is escaped", () => {
     write(
       "docs/x.md",
-      "<script>alert(1)</script>\n\n<img src=x onerror=alert(1)>"
+      "<script>alert(1)</script>\n\n<img src=x onerror=alert(1)>",
     );
     run("-i", "docs", "-o", "out");
     const html = read("out/x.html");
@@ -488,7 +488,7 @@ describe("--lang and --quiet", () => {
     write("docs/t.txt");
     write(
       "ssg.json",
-      JSON.stringify({ input: "docs", output: "out", lang: "de" })
+      JSON.stringify({ input: "docs", output: "out", lang: "de" }),
     );
     run("-c", "ssg.json");
     expect(read("out/t.html")).toContain('<html lang="de">');

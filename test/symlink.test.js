@@ -17,7 +17,7 @@ describe("Symlink security", () => {
     const link = path.join(tmp, "link.txt");
     fs.symlinkSync(path.join(tmp, "secret.txt"), link);
     expect(() => checkInput(link)).toThrow(
-      "Symbolic links are not supported as input."
+      "Symbolic links are not supported as input.",
     );
   });
 
@@ -32,12 +32,10 @@ describe("Symlink security", () => {
     await convertToHtml(indir, "", outdir, false);
 
     const walk = (d) =>
-      fs
-        .readdirSync(d, { withFileTypes: true })
-        .flatMap((e) => {
-          const p = path.join(d, e.name);
-          return e.isDirectory() ? walk(p) : [p];
-        });
+      fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+        const p = path.join(d, e.name);
+        return e.isDirectory() ? walk(p) : [p];
+      });
     const contents = walk(outdir)
       .map((f) => fs.readFileSync(f, "utf8"))
       .join("\n");

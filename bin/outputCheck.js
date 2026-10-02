@@ -7,7 +7,7 @@ const outputCheck = (folder) => {
   if (fs.existsSync(folder) && !fs.lstatSync(folder).isDirectory()) {
     throw new CliError(
       `Output path must be a directory: ${folder}`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
   return true;

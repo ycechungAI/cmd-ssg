@@ -2,19 +2,20 @@ const { createHtmlFileTest } = require("../bin/helper");
 
 describe("Security Check", () => {
   it("Should escape stylesheet option to prevent XSS", async () => {
-    const maliciousStyle = "\"><script>alert(1)</script>";
+    const maliciousStyle = '"><script>alert(1)</script>';
     // The expected output should have the malicious style escaped
     // " becomes &quot;
     // > becomes &gt;
     // < becomes &lt;
     // & becomes &amp;
-    const expectedEscapedStyle = "&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;";
+    const expectedEscapedStyle =
+      "&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;";
 
     const outputHtml = await createHtmlFileTest(
       "test.txt",
       "Content",
       maliciousStyle,
-      "./dist"
+      "./dist",
     );
 
     // We expect the href attribute to contain the escaped string
@@ -31,7 +32,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle,
-      "./dist"
+      "./dist",
     );
 
     // We expect the href attribute to contain the sanitized empty string
@@ -48,7 +49,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle,
-      "./dist"
+      "./dist",
     );
     expect(outputHtml1).toContain(`href="${expectedEscapedStyle}"`);
 
@@ -56,7 +57,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle2,
-      "./dist"
+      "./dist",
     );
     expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
   });
@@ -70,7 +71,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle1,
-      "./dist"
+      "./dist",
     );
     expect(outputHtml1).toContain(`href="${expectedEscapedStyle}"`);
 
@@ -78,7 +79,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle2,
-      "./dist"
+      "./dist",
     );
     expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
   });
@@ -93,7 +94,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle1,
-      "./dist"
+      "./dist",
     );
     expect(outputHtml1).toContain(`href="${expectedEscapedStyle}"`);
 
@@ -101,7 +102,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle2,
-      "./dist"
+      "./dist",
     );
     expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
 
@@ -109,7 +110,7 @@ describe("Security Check", () => {
       "test.txt",
       "Content",
       maliciousStyle3,
-      "./dist"
+      "./dist",
     );
     expect(outputHtml3).toContain(`href="${expectedEscapedStyle}"`);
   });

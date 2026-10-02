@@ -13,7 +13,7 @@ const {
 describe("IsFileCheck check", () => {
   it("Check for correct file", () => {
     const response = isFileCheck(
-      path.join("..", "sample_txt", "The Naval Treaty.txt")
+      path.join("..", "sample_txt", "The Naval Treaty.txt"),
     );
     expect(response).toBe(true);
   });
@@ -45,7 +45,7 @@ describe("Input argv check", () => {
 
   it("Check for non exist file", () => {
     expect(() => checkInput("holyghost.txt")).toThrow(
-      "Directory or file must exist."
+      "Directory or file must exist.",
     );
   });
 
@@ -56,7 +56,7 @@ describe("Input argv check", () => {
 
   it("Check for .css input file", () => {
     expect(() => checkInput(path.join("sample_css", "new.css"))).toThrow(
-      "File must be a .txt or .md file."
+      "File must be a .txt or .md file.",
     );
   });
 });
@@ -80,7 +80,7 @@ describe("Render HTML", () => {
     return createHtmlFileTest(
       "htmltest1.txt",
       "Title Of Test\n\n\nfirst paragraph.\n\nsecond paragraph.",
-      ""
+      "",
     ).then((data) => {
       expect(data.replace(/\s/g, "")).toBe(expectedHtml.replace(/\s/g, ""));
     });
@@ -93,7 +93,7 @@ describe("Render HTML", () => {
 
   it("Links the stylesheet when one is given", () => {
     expect(renderPage("a.txt", "text", "style.css")).toContain(
-      '<link rel="stylesheet" href="style.css">'
+      '<link rel="stylesheet" href="style.css">',
     );
   });
 
@@ -120,7 +120,7 @@ describe("Render HTML", () => {
           { url: "b/c.html", name: "c" },
         ],
         "",
-        tmp
+        tmp,
       );
       const html = fs.readFileSync(path.join(tmp, "index.html"), "utf8");
       expect(html).toContain("href='a.html'");

@@ -31,24 +31,24 @@ const createProgram = () =>
     .option("-i, --input <path>", "input .txt/.md file or folder")
     .option(
       "-o, --output <folder>",
-      `output folder (default: ${DEFAULT_OUTPUT})`
+      `output folder (default: ${DEFAULT_OUTPUT})`,
     )
     .option(
       "-s, --stylesheet <file-or-url>",
-      "stylesheet: a local file (copied to assets/) or an http(s) URL"
+      "stylesheet: a local file (copied to assets/) or an http(s) URL",
     )
     .option(
       "-c, --config <file>",
-      "JSON file with input, output, stylesheet, lang and clean (CLI flags win)"
+      "JSON file with input, output, stylesheet, lang and clean (CLI flags win)",
     )
     .option("--lang <code>", "language of the pages (default: en)")
     .option(
       "--clean",
-      "empty the output folder first (only if cmd-ssg created it)"
+      "empty the output folder first (only if cmd-ssg created it)",
     )
     .option("-q, --quiet", "only print warnings and errors")
     .addHelpText("beforeAll", () =>
-      chalk.yellow(figlet.textSync("cmd-ssg", { horizontalLayout: "full" }))
+      chalk.yellow(figlet.textSync("cmd-ssg", { horizontalLayout: "full" })),
     );
 
 // Read options from a JSON config file. The file is parsed
@@ -62,7 +62,7 @@ const loadConfig = (configPath) => {
       err.code === "ENOENT"
         ? `Config file not found: ${configPath}`
         : `Unable to read config file ${configPath}: ${err.message}`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
 
@@ -72,13 +72,13 @@ const loadConfig = (configPath) => {
   } catch (err) {
     throw new CliError(
       `Config file is not valid JSON: ${configPath} (${err.message})`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
   if (!config || typeof config !== "object" || Array.isArray(config)) {
     throw new CliError(
       `Config file must contain a JSON object: ${configPath}`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
 
@@ -88,7 +88,7 @@ const loadConfig = (configPath) => {
     if (typeof config[key] !== type) {
       throw new CliError(
         `Config "${key}" must be a ${type}: ${configPath}`,
-        EXIT_USAGE
+        EXIT_USAGE,
       );
     }
     options[key] = config[key];
@@ -101,7 +101,7 @@ const definedOptions = (flags) =>
     OPTION_KEYS.filter((key) => flags[key] !== undefined).map((key) => [
       key,
       flags[key],
-    ])
+    ]),
   );
 
 async function main(argv) {
@@ -121,7 +121,7 @@ async function main(argv) {
   if (!LANG_PATTERN.test(options.lang)) {
     throw new CliError(
       `Invalid language code: ${options.lang} (expected e.g. en or fr-CA)`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
   helper.checkInput(options.input);
@@ -133,7 +133,7 @@ async function main(argv) {
     options.stylesheet,
     options.output,
     fs.lstatSync(options.input).isFile(),
-    { clean: options.clean, lang: options.lang, quiet: options.quiet }
+    { clean: options.clean, lang: options.lang, quiet: options.quiet },
   );
 }
 

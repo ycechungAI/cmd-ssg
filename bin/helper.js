@@ -78,7 +78,7 @@ const parseText = (data) => {
         .split("\n")
         .map((line) => line.trim())
         .filter((line) => line)
-        .join(" ")
+        .join(" "),
     )
     .filter((paragraph) => paragraph);
   return { title, paragraphs };
@@ -129,7 +129,7 @@ const writeFile = async (file, content, log, exitCode = EXIT_CREATE_FOLDER) => {
   } catch (err) {
     throw new CliError(
       `Unable to write ${displayPath(file)}: ${err.message}`,
-      exitCode
+      exitCode,
     );
   }
   log(`File created -> ${displayPath(file)}`);
@@ -141,13 +141,13 @@ async function createHtmlFile(
   data,
   stylesheet = "",
   outputPath,
-  { lang = "en", quiet = false } = {}
+  { lang = "en", quiet = false } = {},
 ) {
   const file = path.join(outputPath, outputFileName(basename));
   await writeFile(
     file,
     renderPage(basename, data, stylesheet, lang),
-    quiet ? noop : console.log
+    quiet ? noop : console.log,
   );
   return file;
 }
@@ -161,7 +161,7 @@ const createIndexHtmlFile = async (
   routeList,
   stylesheet = "",
   outputPath,
-  { lang = "en", quiet = false } = {}
+  { lang = "en", quiet = false } = {},
 ) => {
   const html = generateHTML.generateHtmlMenuTemplate({
     routeList,
@@ -172,7 +172,7 @@ const createIndexHtmlFile = async (
     path.join(outputPath, "index.html"),
     html,
     quiet ? noop : console.log,
-    EXIT_INDEX
+    EXIT_INDEX,
   );
 };
 
@@ -217,7 +217,7 @@ const stylesheetHref = (sheet, relOut) => {
   if (!sheet) return "";
   if (sheet.url) return sheet.url;
   return encodeHref(
-    path.posix.relative(path.posix.dirname(relOut), sheet.asset)
+    path.posix.relative(path.posix.dirname(relOut), sheet.asset),
   );
 };
 
@@ -226,7 +226,7 @@ const prepareOutputFolder = async (out, inputAbs, clean) => {
   if (isInside(inputAbs, out)) {
     throw new CliError(
       `Output folder ${displayPath(out)} must not contain the input.`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
   if (clean && fs.existsSync(out)) {
@@ -235,9 +235,9 @@ const prepareOutputFolder = async (out, inputAbs, clean) => {
     if (entries.length && !entries.includes(MARKER_FILE)) {
       throw new CliError(
         `Refusing to clean ${displayPath(
-          out
+          out,
         )}: not created by cmd-ssg (missing ${MARKER_FILE} marker)`,
-        EXIT_USAGE
+        EXIT_USAGE,
       );
     }
     try {
@@ -245,7 +245,7 @@ const prepareOutputFolder = async (out, inputAbs, clean) => {
     } catch (err) {
       throw new CliError(
         `Unable to clean ${displayPath(out)}: ${err.message}`,
-        EXIT_CREATE_FOLDER
+        EXIT_CREATE_FOLDER,
       );
     }
   }
@@ -253,12 +253,12 @@ const prepareOutputFolder = async (out, inputAbs, clean) => {
     await fs.promises.mkdir(out, { recursive: true });
     await fs.promises.writeFile(
       path.join(out, MARKER_FILE),
-      JSON.stringify({ version, generatedAt: new Date().toISOString() }) + "\n"
+      JSON.stringify({ version, generatedAt: new Date().toISOString() }) + "\n",
     );
   } catch (err) {
     throw new CliError(
       `Unable to create folder ${displayPath(out)}: ${err.message}`,
-      EXIT_CREATE_FOLDER
+      EXIT_CREATE_FOLDER,
     );
   }
 };
@@ -270,7 +270,7 @@ const copyAsset = async (from, to, log) => {
   } catch (err) {
     throw new CliError(
       `Unable to copy ${displayPath(from)}: ${err.message}`,
-      EXIT_CREATE_FOLDER
+      EXIT_CREATE_FOLDER,
     );
   }
   log(`File copied -> ${displayPath(to)}`);
@@ -281,7 +281,7 @@ async function convertToHtml(
   stylesheet = "",
   outputPath = DEFAULT_OUTPUT,
   isFile = isFileCheck(inputPath),
-  { clean = false, lang = "en", quiet = false } = {}
+  { clean = false, lang = "en", quiet = false } = {},
 ) {
   const log = quiet ? noop : console.log;
   const inputAbs = path.resolve(inputPath);
@@ -318,7 +318,7 @@ async function convertToHtml(
       console.warn(
         `Skipping ${entry.rel}: output ${
           entry.relOut
-        } already produced by ${claimed.get(entry.relOut)}`
+        } already produced by ${claimed.get(entry.relOut)}`,
       );
       continue;
     }
@@ -337,7 +337,7 @@ async function convertToHtml(
     } catch (err) {
       throw new CliError(
         `Unable to read ${entry.rel}: ${err.message}`,
-        EXIT_READ_FILE
+        EXIT_READ_FILE,
       );
     }
 
@@ -365,7 +365,7 @@ async function convertToHtml(
       routesList,
       stylesheetHref(sheet, "index.html"),
       out,
-      { lang, quiet }
+      { lang, quiet },
     );
   }
 }
@@ -374,7 +374,7 @@ function checkInput(input) {
   if (!input) {
     throw new CliError(
       "No input given. Use -i <path> or -c <config> (see ssg --help).",
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
   // Check if path exist
@@ -388,7 +388,7 @@ function checkInput(input) {
   if (inputLstat.isSymbolicLink()) {
     throw new CliError(
       "Symbolic links are not supported as input.",
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
   if (inputLstat.isFile()) {
@@ -418,7 +418,7 @@ function checkInput(input) {
     if (!checkValidFile(input)) {
       throw new CliError(
         "Directory doesn't contain any .txt or .md file.",
-        EXIT_USAGE
+        EXIT_USAGE,
       );
     }
     return true;

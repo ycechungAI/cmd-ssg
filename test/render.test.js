@@ -10,14 +10,14 @@ const FIXTURES = path.join(__dirname, "fixtures");
 // and review the diff.
 describe("golden files", () => {
   const cases = ["md", "txt"].flatMap((dir) =>
-    fs.readdirSync(path.join(FIXTURES, dir)).map((file) => [dir, file])
+    fs.readdirSync(path.join(FIXTURES, dir)).map((file) => [dir, file]),
   );
 
   it.each(cases)("%s/%s", (dir, file) => {
     const source = fs.readFileSync(path.join(FIXTURES, dir, file));
     const expected = fs.readFileSync(
       path.join(FIXTURES, "expected", `${path.parse(file).name}.html`),
-      "utf8"
+      "utf8",
     );
     expect(renderPage(file, source)).toBe(expected);
   });
