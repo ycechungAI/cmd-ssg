@@ -83,4 +83,35 @@ describe("Security Check", () => {
     );
     expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
   });
+
+  it("Should prevent XSS bypass via HTML entity encoding", async () => {
+    const maliciousStyle1 = "&#106;avascript:alert(1)"; // j is &#106;
+    const maliciousStyle2 = "&#x6A;avascript:alert(1)"; // j is &#x6A;
+    const maliciousStyle3 = "jav&#x09;ascript:alert(1)"; // tab encoded inside
+    const expectedEscapedStyle = "about:blank";
+
+    const outputHtml1 = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle1,
+      "./dist"
+    );
+    expect(outputHtml1).toContain(`href="${expectedEscapedStyle}"`);
+
+    const outputHtml2 = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle2,
+      "./dist"
+    );
+    expect(outputHtml2).toContain(`href="${expectedEscapedStyle}"`);
+
+    const outputHtml3 = await createHtmlFileTest(
+      "test.txt",
+      "Content",
+      maliciousStyle3,
+      "./dist"
+    );
+    expect(outputHtml3).toContain(`href="${expectedEscapedStyle}"`);
+  });
 });

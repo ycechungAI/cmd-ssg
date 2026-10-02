@@ -50,12 +50,17 @@ const sanitizeUrl = (url) => {
     }
   };
 
+  const decodeHTMLEntities = (text) => {
+    return text.replace(/&#(\d+);?/g, (match, dec) => String.fromCharCode(dec))
+               .replace(/&#x([0-9a-f]+);?/gi, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+  };
+
   let decodedUrl = unescapeUrl(url.toString());
   // Prevent multiple encoding bypasses
   let previousDecodedUrl = "";
   while (decodedUrl !== previousDecodedUrl) {
     previousDecodedUrl = decodedUrl;
-    decodedUrl = unescapeUrl(decodedUrl);
+    decodedUrl = unescapeUrl(decodeHTMLEntities(decodedUrl));
   }
 
   const cleanUrl = decodedUrl
