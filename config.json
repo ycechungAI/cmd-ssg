@@ -1,5 +1,5 @@
 {
   "input": "sample_txt",
   "output": "dist",
-  "stylesheet": "../sample_css/new.css"
+  "stylesheet": "sample_css/new.css"
 }

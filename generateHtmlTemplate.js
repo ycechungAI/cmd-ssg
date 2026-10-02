@@ -40,7 +40,7 @@ const sanitizeUrl = (url) => {
   const unescapeUrl = (str) => {
     try {
       return decodeURIComponent(str);
-    } catch (e) {
+    } catch {
       // Fallback for malformed URIs
       return unescape(str);
     }
@@ -50,7 +50,7 @@ const sanitizeUrl = (url) => {
     return text
       .replace(/&#(\d+);?/g, (match, dec) => String.fromCharCode(dec))
       .replace(/&#x([0-9a-f]+);?/gi, (match, hex) =>
-        String.fromCharCode(parseInt(hex, 16))
+        String.fromCharCode(parseInt(hex, 16)),
       );
   };
 
@@ -147,8 +147,8 @@ const renderRouteGroup = (group, depth) => {
       .map(
         (route) =>
           `${pad}  <li><a href='${escapeHtml(
-            sanitizeUrl(route.url)
-          )}'>${escapeHtml(route.title || route.name)}</a></li>\n`
+            sanitizeUrl(route.url),
+          )}'>${escapeHtml(route.title || route.name)}</a></li>\n`,
       ),
     ...Object.keys(group.folders)
       .sort(compareText)
@@ -156,8 +156,8 @@ const renderRouteGroup = (group, depth) => {
         (name) =>
           `${pad}  <li>${escapeHtml(name)}\n${renderRouteGroup(
             group.folders[name],
-            depth + 2
-          )}${pad}  </li>\n`
+            depth + 2,
+          )}${pad}  </li>\n`,
       ),
   ];
   return `${pad}<ul>\n${items.join("")}${pad}</ul>\n`;
