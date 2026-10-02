@@ -296,6 +296,23 @@ describe("--clean", () => {
     expect(read("out/keep.txt")).toBe("mine");
   });
 
+  it("never marks a folder that already holds other files", () => {
+    write("docs/one.txt");
+    write("mysite/notes.txt", "mine");
+    expect(run("-i", "docs", "-o", "mysite").code).toBe(0);
+    expect(exists("mysite/.cmd-ssg")).toBe(false);
+    // ...so a later --clean still refuses and the user's file survives.
+    expect(run("-i", "docs", "-o", "mysite", "--clean").code).toBe(2);
+    expect(read("mysite/notes.txt")).toBe("mine");
+  });
+
+  it("keeps marking a folder from an earlier build", () => {
+    write("docs/one.txt");
+    run("-i", "docs", "-o", "out");
+    expect(run("-i", "docs", "-o", "out").code).toBe(0);
+    expect(exists("out/.cmd-ssg")).toBe(true);
+  });
+
   it("writes a .cmd-ssg marker into the output folder", () => {
     write("docs/one.txt");
     run("-i", "docs", "-o", "out");

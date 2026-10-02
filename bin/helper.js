@@ -221,6 +221,15 @@ const stylesheetHref = (sheet, relOut) => {
   );
 };
 
+// Folder entries, or null when the folder doesn't exist (or isn't a folder).
+const listFolder = (dir) => {
+  try {
+    return fs.readdirSync(dir);
+  } catch {
+    return null;
+  }
+};
+
 const prepareOutputFolder = async (out, inputAbs, clean) => {
   // Writing (or cleaning) the output folder must never touch the input.
   if (isInside(inputAbs, out)) {
@@ -229,10 +238,13 @@ const prepareOutputFolder = async (out, inputAbs, clean) => {
       EXIT_USAGE,
     );
   }
-  if (clean && fs.existsSync(out)) {
-    const entries = fs.readdirSync(out);
+  const entries = listFolder(out);
+  // The folder is ours when it is new, empty, or marked by an earlier build.
+  const ours =
+    !entries || entries.length === 0 || entries.includes(MARKER_FILE);
+  if (clean && entries) {
     // Only delete folders this tool created: never wipe someone's files.
-    if (entries.length && !entries.includes(MARKER_FILE)) {
+    if (!ours) {
       throw new CliError(
         `Refusing to clean ${displayPath(
           out,
@@ -251,10 +263,15 @@ const prepareOutputFolder = async (out, inputAbs, clean) => {
   }
   try {
     await fs.promises.mkdir(out, { recursive: true });
-    await fs.promises.writeFile(
-      path.join(out, MARKER_FILE),
-      JSON.stringify({ version, generatedAt: new Date().toISOString() }) + "\n",
-    );
+    // Never mark a folder that already holds other files: a later --clean
+    // would then delete them.
+    if (ours) {
+      await fs.promises.writeFile(
+        path.join(out, MARKER_FILE),
+        JSON.stringify({ version, generatedAt: new Date().toISOString() }) +
+          "\n",
+      );
+    }
   } catch (err) {
     throw new CliError(
       `Unable to create folder ${displayPath(out)}: ${err.message}`,
