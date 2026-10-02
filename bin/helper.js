@@ -127,6 +127,12 @@ const getAllFiles = async (dirPath, filesPathList) => {
 
   for (const file of files) {
     const fileLstat = await fs.promises.lstat(path.join(dirPath, file));
+    // Security: never follow symbolic links. A planted symlink such as
+    // evil.txt -> /etc/passwd would otherwise be read and its contents
+    // published into the generated site (arbitrary file read).
+    if (fileLstat.isSymbolicLink()) {
+      continue;
+    }
     if (fileLstat.isDirectory()) {
       filesPathList = await getAllFiles(
         path.join(dirPath, file),
@@ -272,6 +278,12 @@ function checkInput(input) {
   if (input) {
     // Check if path exist
     if (fs.existsSync(input)) {
+      // Security: refuse symbolic links as input. A symlink (e.g.
+      // input.txt -> /etc/passwd) would otherwise be followed on read,
+      // leaking arbitrary files into the generated site.
+      if (fs.lstatSync(input).isSymbolicLink()) {
+        throw new Error("Symbolic links are not supported as input.");
+      }
       // Check if path is a file or directory
       if (fs.lstatSync(input).isFile()) {
         const extname = path.extname(input);
@@ -291,6 +303,11 @@ function checkInput(input) {
               path.join(dirPath, dirContent)
             );
 
+            // Security: ignore symbolic links when validating, mirroring
+            // getAllFiles which never follows them.
+            if (dirContentLstat.isSymbolicLink()) {
+              continue;
+            }
             if (dirContentLstat.isDirectory()) {
               if (checkValidFile(path.join(dirPath, dirContent))) return true;
             } else {

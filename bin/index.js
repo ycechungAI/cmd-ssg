@@ -82,14 +82,6 @@ if (options.version) {
   // eslint-disable-next-line no-unused-vars
   let files = [];
 
-  if (process.argv[5] != undefined) {
-    console.log(process.argv[5]);
-    checkInputTest1 = helper.checkInput(process.argv[5]);
-    if (checkInputTest1 == false) {
-      helper.displayError(true, errorCode1, 1);
-      process.exit(1);
-    }
-  }
   testInput = helper.checkInput(options.input);
 
   //console.log(testInput + " " + options.input);
