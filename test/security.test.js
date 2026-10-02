@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 const { createHtmlFileTest } = require("../bin/helper");
 
 describe("Security Check", () => {

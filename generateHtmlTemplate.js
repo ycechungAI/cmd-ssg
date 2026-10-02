@@ -1,6 +1,5 @@
 /* eslint-disable quotes */
 /* eslint-disable indent */
-/* eslint-disable no-undef */
 /*
 https://github.com/Kevan-Y/text-ssg/blob/master/generateHtmlTemplate.js
 
@@ -75,6 +74,11 @@ const sanitizeUrl = (url) => {
   return url.toString();
 };
 
+// Omit the <link> entirely without a stylesheet: href="" would make the
+// browser re-request the page itself as CSS.
+const renderStylesheet = (style) =>
+  style ? `<link rel="stylesheet" href="${escapeHtml(sanitizeUrl(style))}">` : "";
+
 const renderContent = (options) => {
   if (options.fileExtname === ".txt") {
     return options.content
@@ -98,7 +102,7 @@ const generateHtmlTemplate = (options) => {
         <title>${escapeHtml(options.title || "Document")}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="${escapeHtml(sanitizeUrl(options.style))}">
+        ${renderStylesheet(options.style)}
     </head>
     <body>
         <h1>${escapeHtml(options.title || "Document")}</h1>
@@ -117,7 +121,7 @@ const generateHtmlMenuTemplate = (options) => {
     <title>Home</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="${escapeHtml(sanitizeUrl(options.style))}">
+    ${renderStylesheet(options.style)}
 </head>
 <body>
     <h1>Home menu</h1>
