@@ -68,9 +68,8 @@ describe("Render HTML", () => {
     <htmllang="en">
       <head>
         <metacharset="UTF-8">
-        <title>TitleOfTest</title>
-        <metahttp-equiv="X-UA-Compatible"content="IE=edge">
         <metaname="viewport"content="width=device-width,initial-scale=1.0">
+        <title>TitleOfTest</title>
       </head>
       <body>
         <h1>TitleOfTest</h1>
