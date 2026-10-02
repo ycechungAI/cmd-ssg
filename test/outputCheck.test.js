@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 const { outputCheck } = require("./../bin/outputCheck");
 
 describe("Output check", () => {
@@ -7,12 +6,13 @@ describe("Output check", () => {
     expect(response).toBe(true);
   });
 
+  it("Check for a missing output directory (created later)", () => {
+    expect(outputCheck("does-not-exist-yet")).toBe(true);
+  });
+
   it("Check for not a output directory", () => {
-    try {
-      outputCheck("README.md");
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e.message).toBe("Path must be a directory.");
-    }
+    expect(() => outputCheck("README.md")).toThrow(
+      "Output path must be a directory: README.md"
+    );
   });
 });

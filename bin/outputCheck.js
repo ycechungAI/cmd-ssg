@@ -1,16 +1,16 @@
-/* eslint-disable no-undef */
 const fs = require("fs");
-const chalk = require("chalk");
-const errorCode10 = chalk.red.bold("Output folder is not supported!");
+const { CliError, EXIT_USAGE } = require("./helper");
 
+// The output folder may be missing (it is created when converting), but an
+// existing path must be a directory.
 const outputCheck = (folder) => {
-  if (folder !== "./dist") {
-    // Check if it is a directory and exit
-    if (fs.existsSync(folder)) {
-      if (fs.lstatSync(folder).isDirectory()) return true;
-      throw new Error("Path must be a directory.");
-    } else console.log(errorCode10);
-  } else return true;
+  if (fs.existsSync(folder) && !fs.lstatSync(folder).isDirectory()) {
+    throw new CliError(
+      `Output path must be a directory: ${folder}`,
+      EXIT_USAGE
+    );
+  }
+  return true;
 };
 
 module.exports = { outputCheck };
