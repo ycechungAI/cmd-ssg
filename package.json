@@ -10,7 +10,7 @@
     "chalk": "^4.1.2",
     "commander": "^8.1.0",
     "figlet": "^1.5.2",
-    "markdown-it": "^14.3.2"
+    "markdown-it": "^15.0.2"
   },
   "scripts": {
     "eslint": "eslint --ignore-path .gitignore .",
