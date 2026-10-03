@@ -47,3 +47,9 @@ Return the original URL when it is safe. Every bypass above has a regression tes
 **Vulnerability:** Input files and directory entries were read through symlinks, so a planted `evil.txt -> /etc/passwd` would publish arbitrary files into the generated site.
 **Learning:** Any recursive walk of user-supplied folders must treat symlinks as untrusted.
 **Prevention:** Use `lstat` and skip symbolic links in `getAllFiles` and `checkInput`, and reject a symlink given directly as input. Covered by `test/symlink.test.js`.
+
+## 2026-10-02 - [Prototype Pollution via Dynamic Object Property Assignment]
+
+**Vulnerability:** The `groupRoutes` function in `generateHtmlTemplate.js` built a nested folder structure dynamically. It used `{}` for the `folders` map and `group.folders[dir] = group.folders[dir] || ...`, allowing an attacker to traverse and potentially manipulate `Object.prototype` by supplying a file with a `dir` named `__proto__` or `constructor`.
+**Learning:** Initializing maps or dictionaries with `{}` inherits properties from `Object.prototype`, which allows traversing up the prototype chain if malicious keys like `__proto__` are evaluated.
+**Prevention:** Always use `Object.create(null)` or ES6 `Map` when creating objects that will hold arbitrary user-provided keys, preventing access to prototype properties.
