@@ -1,5 +1,8 @@
-# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# Runs lint, formatting checks and tests on every push and pull request to main.
+#
+# The repository only allows local actions, so this workflow uses no
+# `uses:` steps at all: it checks out the code with plain git and runs the
+# Node.js that is preinstalled on the GitHub-hosted runner images.
 
 name: Node.js CI
 permissions:
@@ -19,17 +22,24 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: [18, 20, 22]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+      - name: Check out the commit
+        # GITHUB_SHA is the pushed commit, or the PR merge commit.
+        run: |
+          git init -q .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          git fetch -q --depth=1 origin "$GITHUB_SHA"
+          git checkout -q FETCH_HEAD
+          git log -1 --format="Checked out %H %s"
+      - name: Show tool versions
+        run: |
+          node --version
+          npm --version
       - run: npm ci
-      - run: npm run build --if-present
       - run: npm run prettier-check
       - run: npm test
