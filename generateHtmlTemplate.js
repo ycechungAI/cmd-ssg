@@ -124,12 +124,12 @@ const generateHtmlTemplate = (options) => {
 
 // Group routes by folder: { pages: [route], folders: { name: group } }.
 const groupRoutes = (routeList) => {
-  const root = { pages: [], folders: {} };
+  const root = { pages: [], folders: Object.create(null) };
   for (const route of routeList) {
     const dirs = route.dir ? route.dir.split("/") : [];
     let group = root;
     for (const dir of dirs) {
-      group.folders[dir] = group.folders[dir] || { pages: [], folders: {} };
+      group.folders[dir] = group.folders[dir] || { pages: [], folders: Object.create(null) };
       group = group.folders[dir];
     }
     group.pages.push(route);

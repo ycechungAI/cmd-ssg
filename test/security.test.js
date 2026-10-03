@@ -114,4 +114,19 @@ describe("Security Check", () => {
     );
     expect(outputHtml3).toContain(`href="${expectedEscapedStyle}"`);
   });
+
+  it("Should prevent prototype pollution in groupRoutes", () => {
+    const { generateHtmlMenuTemplate } = require("../generateHtmlTemplate");
+    const options = {
+      routeList: [
+        { url: "a.html", name: "a", dir: "__proto__" }
+      ]
+    };
+
+    // This should not throw an error or pollute Object.prototype
+    const html = generateHtmlMenuTemplate(options);
+
+    expect(html).toContain("<li>__proto__");
+    expect({}.pages).toBeUndefined();
+  });
 });
