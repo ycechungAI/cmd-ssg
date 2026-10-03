@@ -1,3 +1,5 @@
 # ignore artifacts:
 build
 dist
+# golden test files must stay byte-exact
+test/fixtures

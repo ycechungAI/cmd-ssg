@@ -9,7 +9,18 @@ const helper = require("./helper");
 const { outputCheck } = require("./outputCheck");
 const { CliError, DEFAULT_OUTPUT, EXIT_USAGE } = helper;
 
-const OPTION_KEYS = ["input", "output", "stylesheet"];
+// Options settable from the config file, with their JSON type.
+const CONFIG_TYPES = {
+  input: "string",
+  output: "string",
+  stylesheet: "string",
+  lang: "string",
+  clean: "boolean",
+};
+const OPTION_KEYS = [...Object.keys(CONFIG_TYPES), "quiet"];
+
+// BCP 47-like language tag, e.g. "en", "fr-CA", "zh-Hant".
+const LANG_PATTERN = /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$/;
 
 const createProgram = () =>
   new Command()
@@ -20,18 +31,27 @@ const createProgram = () =>
     .option("-i, --input <path>", "input .txt/.md file or folder")
     .option(
       "-o, --output <folder>",
-      `output folder (default: ${DEFAULT_OUTPUT})`
+      `output folder (default: ${DEFAULT_OUTPUT})`,
     )
-    .option("-s, --stylesheet <url>", "stylesheet URL linked from every page")
+    .option(
+      "-s, --stylesheet <file-or-url>",
+      "stylesheet: a local file (copied to assets/) or an http(s) URL",
+    )
     .option(
       "-c, --config <file>",
-      "JSON file with input, output and stylesheet (CLI flags win)"
+      "JSON file with input, output, stylesheet, lang and clean (CLI flags win)",
     )
+    .option("--lang <code>", "language of the pages (default: en)")
+    .option(
+      "--clean",
+      "empty the output folder first (only if cmd-ssg created it)",
+    )
+    .option("-q, --quiet", "only print warnings and errors")
     .addHelpText("beforeAll", () =>
-      chalk.yellow(figlet.textSync("cmd-ssg", { horizontalLayout: "full" }))
+      chalk.yellow(figlet.textSync("cmd-ssg", { horizontalLayout: "full" })),
     );
 
-// Read input/output/stylesheet from a JSON config file. The file is parsed
+// Read options from a JSON config file. The file is parsed
 // as data, never require()d, so it cannot execute code.
 const loadConfig = (configPath) => {
   let raw;
@@ -42,7 +62,7 @@ const loadConfig = (configPath) => {
       err.code === "ENOENT"
         ? `Config file not found: ${configPath}`
         : `Unable to read config file ${configPath}: ${err.message}`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
 
@@ -52,23 +72,23 @@ const loadConfig = (configPath) => {
   } catch (err) {
     throw new CliError(
       `Config file is not valid JSON: ${configPath} (${err.message})`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
   if (!config || typeof config !== "object" || Array.isArray(config)) {
     throw new CliError(
       `Config file must contain a JSON object: ${configPath}`,
-      EXIT_USAGE
+      EXIT_USAGE,
     );
   }
 
   const options = {};
-  for (const key of OPTION_KEYS) {
+  for (const [key, type] of Object.entries(CONFIG_TYPES)) {
     if (config[key] === undefined) continue;
-    if (typeof config[key] !== "string") {
+    if (typeof config[key] !== type) {
       throw new CliError(
-        `Config "${key}" must be a string: ${configPath}`,
-        EXIT_USAGE
+        `Config "${key}" must be a ${type}: ${configPath}`,
+        EXIT_USAGE,
       );
     }
     options[key] = config[key];
@@ -81,7 +101,7 @@ const definedOptions = (flags) =>
     OPTION_KEYS.filter((key) => flags[key] !== undefined).map((key) => [
       key,
       flags[key],
-    ])
+    ]),
   );
 
 async function main(argv) {
@@ -91,19 +111,29 @@ async function main(argv) {
   const options = {
     output: DEFAULT_OUTPUT,
     stylesheet: "",
+    lang: "en",
+    clean: false,
+    quiet: false,
     ...config,
     ...definedOptions(flags),
   };
 
+  if (!LANG_PATTERN.test(options.lang)) {
+    throw new CliError(
+      `Invalid language code: ${options.lang} (expected e.g. en or fr-CA)`,
+      EXIT_USAGE,
+    );
+  }
   helper.checkInput(options.input);
   outputCheck(options.output);
 
-  console.log("  running >>>");
+  if (!options.quiet) console.log("  running >>>");
   await helper.convertToHtml(
     options.input,
     options.stylesheet,
     options.output,
-    fs.lstatSync(options.input).isFile()
+    fs.lstatSync(options.input).isFile(),
+    { clean: options.clean, lang: options.lang, quiet: options.quiet },
   );
 }
 

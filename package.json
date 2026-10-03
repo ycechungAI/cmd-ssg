@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=18"
   },
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "cli .txt to html converter",
   "main": "./bin/index.js",
   "dependencies": {
@@ -13,14 +13,14 @@
     "markdown-it": "^14.3.2"
   },
   "scripts": {
-    "eslint": "eslint --ignore-path .gitignore .",
-    "eslint-fix": "eslint --fix --ignore-path .gitignore .",
-    "prettier-check": "npx prettier --check .",
-    "prettier": "npx prettier --write .",
+    "eslint": "eslint .",
+    "eslint-fix": "eslint --fix .",
+    "prettier-check": "prettier --check .",
+    "prettier": "prettier --write .",
     "lint": "npm run eslint",
     "pretest": "npm run lint",
-    "prepare": "husky install",
-    "test": "jest",
+    "prepare": "husky",
+    "test": "jest --coverage",
     "jest": "jest --verbose --",
     "jest-watch": "jest --silent  --watch --verbose --"
   },
@@ -42,18 +42,34 @@
   },
   "homepage": "https://github.com/ycechungAI/cmd-ssg#readme",
   "devDependencies": {
-    "eslint": "^7.32.0",
-    "husky": "^7.0.4",
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "husky": "^9.1.7",
     "jest": "^30.2.0",
-    "lint-staged": "^11.2.6",
-    "prettier": "2.4.1"
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.9.9"
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix",
-    "*.{js,css,md}": "prettier --write"
+    "*.js": "eslint --fix",
+    "*.{js,json,css,md,yml}": "prettier --write"
   },
   "directories": {
     "lib": "lib",
     "test": "test"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "bin/**/*.js",
+      "lib/**/*.js",
+      "generateHtmlTemplate.js",
+      "!bin/index.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 80,
+        "branches": 70
+      }
+    }
   }
 }

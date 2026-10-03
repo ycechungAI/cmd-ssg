@@ -34,7 +34,8 @@ const write = (rel, content = "text") => {
 const exists = (rel) => fs.existsSync(path.join(tmp, rel));
 const read = (rel) => fs.readFileSync(path.join(tmp, rel), "utf8");
 
-// All files under tmp/<rel>, as sorted "/"-separated relative paths.
+// All files under tmp/<rel>, as sorted "/"-separated relative paths
+// (without the .cmd-ssg marker, which has its own tests).
 const tree = (rel) => {
   const root = path.join(tmp, rel);
   const walk = (dir) =>
@@ -44,6 +45,7 @@ const tree = (rel) => {
     });
   return walk(root)
     .map((p) => p.split(path.sep).join("/"))
+    .filter((p) => p !== ".cmd-ssg")
     .sort();
 };
 
@@ -155,12 +157,12 @@ describe("output paths", () => {
 
   it('"dist" and "./dist" behave the same', () => {
     write("docs/one.txt");
-    write("dist/old.html");
     expect(run("-i", "docs", "-o", "dist").code).toBe(0);
-    expect(tree("dist")).toEqual(["index.html", "one.html"]);
-    write("dist/old.html");
+    const first = tree("dist");
     expect(run("-i", "docs", "-o", "./dist").code).toBe(0);
-    expect(tree("dist")).toEqual(["index.html", "one.html"]);
+    expect(tree("dist")).toEqual(first);
+    expect(run("-i", "docs").code).toBe(0);
+    expect(tree("dist")).toEqual(first);
   });
 });
 
@@ -190,11 +192,17 @@ describe("file names", () => {
     expect(read("out/index.html")).toContain("Welcome home");
   });
 
-  it(".css files are not turned into pages", () => {
+  it(".css files are copied, not turned into pages", () => {
     write("docs/one.txt");
-    write("docs/style.css", "body {}");
+    write("docs/sub dir/style.css", "body {}");
     run("-i", "docs", "-o", "out");
-    expect(tree("out")).toEqual(["index.html", "one.html"]);
+    expect(tree("out")).toEqual([
+      "index.html",
+      "one.html",
+      "sub_dir/style.css",
+    ]);
+    expect(read("out/sub_dir/style.css")).toBe("body {}");
+    expect(read("out/index.html").match(/<li>/g)).toHaveLength(1);
   });
 
   it("folder with only .css files: exit 2", () => {
@@ -216,7 +224,7 @@ describe("stylesheet", () => {
     run("-i", "docs", "-o", "out", "-s", "https://example.com/a.css");
     expect(read("out/one.html")).toContain('href="https://example.com/a.css"');
     expect(read("out/index.html")).toContain(
-      'href="https://example.com/a.css"'
+      'href="https://example.com/a.css"',
     );
   });
 });
@@ -224,12 +232,13 @@ describe("stylesheet", () => {
 describe("config file", () => {
   it("reads input, output and stylesheet", () => {
     write("docs/one.txt");
+    write("s.css", "body {}");
     write(
       "ssg.json",
-      JSON.stringify({ input: "docs", output: "site", stylesheet: "s.css" })
+      JSON.stringify({ input: "docs", output: "site", stylesheet: "s.css" }),
     );
     expect(run("-c", "ssg.json").code).toBe(0);
-    expect(read("site/one.html")).toContain('href="s.css"');
+    expect(read("site/one.html")).toContain('href="assets/s.css"');
   });
 
   it("CLI flags win over the config file", () => {
@@ -273,5 +282,241 @@ describe("config file", () => {
     const { code } = run("-c", "evil.js");
     expect(code).toBe(2);
     expect(exists("pwned")).toBe(false);
+  });
+});
+
+describe("--clean", () => {
+  it("without --clean nothing is deleted, even in the default dist", () => {
+    write("docs/one.txt");
+    write("dist/keep.txt", "mine");
+    write("out/keep.txt", "mine");
+    expect(run("-i", "docs").code).toBe(0);
+    expect(run("-i", "docs", "-o", "out").code).toBe(0);
+    expect(read("dist/keep.txt")).toBe("mine");
+    expect(read("out/keep.txt")).toBe("mine");
+  });
+
+  it("never marks a folder that already holds other files", () => {
+    write("docs/one.txt");
+    write("mysite/notes.txt", "mine");
+    expect(run("-i", "docs", "-o", "mysite").code).toBe(0);
+    expect(exists("mysite/.cmd-ssg")).toBe(false);
+    // ...so a later --clean still refuses and the user's file survives.
+    expect(run("-i", "docs", "-o", "mysite", "--clean").code).toBe(2);
+    expect(read("mysite/notes.txt")).toBe("mine");
+  });
+
+  it("keeps marking a folder from an earlier build", () => {
+    write("docs/one.txt");
+    run("-i", "docs", "-o", "out");
+    expect(run("-i", "docs", "-o", "out").code).toBe(0);
+    expect(exists("out/.cmd-ssg")).toBe(true);
+  });
+
+  it("writes a .cmd-ssg marker into the output folder", () => {
+    write("docs/one.txt");
+    run("-i", "docs", "-o", "out");
+    const marker = JSON.parse(read("out/.cmd-ssg"));
+    expect(marker.version).toBe(version);
+    expect(Date.parse(marker.generatedAt)).not.toBeNaN();
+  });
+
+  it("refuses a folder without the marker and leaves it untouched", () => {
+    write("docs/one.txt");
+    write("out/precious.txt", "mine");
+    const { code, stderr } = run("-i", "docs", "-o", "out", "--clean");
+    expect(code).toBe(2);
+    expect(stderr).toContain("Refusing to clean out");
+    expect(tree("out")).toEqual(["precious.txt"]);
+  });
+
+  it("empties a folder created by an earlier build", () => {
+    write("docs/one.txt");
+    write("docs/two.txt");
+    run("-i", "docs", "-o", "out");
+    fs.rmSync(path.join(tmp, "docs/two.txt"));
+    const { code } = run("-i", "docs", "-o", "out", "--clean");
+    expect(code).toBe(0);
+    expect(tree("out")).toEqual(["index.html", "one.html"]);
+    expect(exists("out/.cmd-ssg")).toBe(true);
+  });
+
+  it("accepts an empty existing folder", () => {
+    write("docs/one.txt");
+    fs.mkdirSync(path.join(tmp, "out"));
+    expect(run("-i", "docs", "-o", "out", "--clean").code).toBe(0);
+  });
+
+  it("can be set in the config file", () => {
+    write("docs/one.txt");
+    write("out/precious.txt", "mine");
+    write(
+      "ssg.json",
+      JSON.stringify({ input: "docs", output: "out", clean: true }),
+    );
+    expect(run("-c", "ssg.json").code).toBe(2);
+    expect(read("out/precious.txt")).toBe("mine");
+  });
+
+  it("non-boolean clean in config: exit 2", () => {
+    write("ssg.json", JSON.stringify({ input: "docs", clean: "yes" }));
+    const { code, stderr } = run("-c", "ssg.json");
+    expect(code).toBe(2);
+    expect(stderr).toContain('Config "clean" must be a boolean');
+  });
+});
+
+describe("local stylesheet", () => {
+  it("is copied to assets/ and linked relatively at every depth", () => {
+    write("docs/zero.txt");
+    write("docs/a/one.txt");
+    write("docs/a/b/two.txt");
+    write("theme/my style.css", "body {}");
+    const { code } = run("-i", "docs", "-o", "out", "-s", "theme/my style.css");
+    expect(code).toBe(0);
+    expect(read("out/assets/my style.css")).toBe("body {}");
+    expect(read("out/index.html")).toContain('href="assets/my%20style.css"');
+    expect(read("out/zero.html")).toContain('href="assets/my%20style.css"');
+    expect(read("out/a/one.html")).toContain('href="../assets/my%20style.css"');
+    expect(read("out/a/b/two.html")).toContain(
+      'href="../../assets/my%20style.css"',
+    );
+  });
+
+  it("missing stylesheet: exit 2 before anything is written", () => {
+    write("docs/one.txt");
+    const { code, stderr } = run("-i", "docs", "-o", "out", "-s", "nope.css");
+    expect(code).toBe(2);
+    expect(stderr).toContain("Stylesheet not found: nope.css");
+    expect(exists("out")).toBe(false);
+  });
+
+  it("a page can't overwrite the copied stylesheet", () => {
+    write("docs/one.txt");
+    write("docs/assets/s.css", "from tree");
+    write("s.css", "from -s");
+    const { stderr } = run("-i", "docs", "-o", "out", "-s", "s.css");
+    expect(stderr).toContain("Skipping assets/s.css");
+    expect(read("out/assets/s.css")).toBe("from -s");
+  });
+});
+
+describe("links", () => {
+  it("index hrefs are URL-encoded", () => {
+    write("docs/C# 100%.md", "# Sharp");
+    write("docs/sub/a&b.txt");
+    const { code } = run("-i", "docs", "-o", "out");
+    expect(code).toBe(0);
+    expect(tree("out")).toEqual(["C#_100%.html", "index.html", "sub/a&b.html"]);
+    const index = read("out/index.html");
+    expect(index).toContain("href='C%23_100%25.html'");
+    expect(index).toContain("href='sub/a%26b.html'");
+  });
+
+  it("index is sorted, labelled with titles and grouped by folder", () => {
+    write("docs/b.md", "# Bravo");
+    write("docs/a.txt", "Alpha title\n\n\nbody");
+    write("docs/sub/c.txt", "no title here");
+    const index = read((run("-i", "docs", "-o", "out"), "out/index.html"));
+    const text = index.replace(/\s+/g, " ");
+    expect(text).toContain(
+      "<li><a href='a.html'>Alpha title</a></li> <li><a href='b.html'>Bravo</a></li> <li>sub <ul> <li><a href='sub/c.html'>c</a></li> </ul> </li>",
+    );
+  });
+});
+
+describe("rendering", () => {
+  it("Markdown is rendered as a whole document", () => {
+    write(
+      "docs/page.md",
+      "# Hello *World*\n\n```js\nconst a = 1;\n\nconst b = 2;\n```\n\n- one\n- two\n  continued\n\n| a | b |\n|---|---|\n| 1 | 2 |\n",
+    );
+    run("-i", "docs", "-o", "out");
+    const html = read("out/page.html");
+    expect(html).toContain("<title>Hello World</title>");
+    expect(html.match(/<h1>/g)).toHaveLength(1);
+    expect(html).toContain(
+      '<pre><code class="language-js">const a = 1;\n\nconst b = 2;\n</code></pre>',
+    );
+    expect(html).toContain("<li>two\ncontinued</li>");
+    expect(html).toContain("<td>1</td>");
+    expect(html).not.toMatch(/<p>\s*<h1>/);
+  });
+
+  it("Markdown without a heading is titled after the file", () => {
+    write("docs/notes.md", "just text");
+    run("-i", "docs", "-o", "out");
+    expect(read("out/notes.html")).toContain("<title>notes</title>");
+    expect(read("out/notes.html")).toContain("<h1>notes</h1>");
+  });
+
+  it("raw HTML in Markdown is escaped", () => {
+    write(
+      "docs/x.md",
+      "<script>alert(1)</script>\n\n<img src=x onerror=alert(1)>",
+    );
+    run("-i", "docs", "-o", "out");
+    const html = read("out/x.html");
+    expect(html).not.toContain("<script>");
+    expect(html).not.toContain("<img");
+  });
+
+  it("text keeps _space_ and drops empty paragraphs", () => {
+    // Line 2 isn't blank, so line 1 is not a title.
+    write("docs/t.txt", "one _space_ two\nnext\n\n\n\n\nthree");
+    run("-i", "docs", "-o", "out");
+    const html = read("out/t.html");
+    expect(html).toContain("<p>one _space_ two next</p>");
+    expect(html).toContain("<p>three</p>");
+    expect(html).not.toContain("<p></p>");
+  });
+
+  it("output starts with the doctype", () => {
+    write("docs/t.txt");
+    run("-i", "docs", "-o", "out");
+    expect(read("out/t.html").startsWith("<!doctype html>")).toBe(true);
+    expect(read("out/index.html").startsWith("<!doctype html>")).toBe(true);
+  });
+});
+
+describe("--lang and --quiet", () => {
+  it("--lang sets the page language", () => {
+    write("docs/t.txt");
+    run("-i", "docs", "-o", "out", "--lang", "fr-CA");
+    expect(read("out/t.html")).toContain('<html lang="fr-CA">');
+    expect(read("out/index.html")).toContain('<html lang="fr-CA">');
+  });
+
+  it("defaults to en", () => {
+    write("docs/t.txt");
+    run("-i", "docs", "-o", "out");
+    expect(read("out/t.html")).toContain('<html lang="en">');
+  });
+
+  it("rejects an invalid language code", () => {
+    write("docs/t.txt");
+    const { code, stderr } = run("-i", "docs", "-o", "out", "--lang", '"><x');
+    expect(code).toBe(2);
+    expect(stderr).toContain("Invalid language code");
+    expect(exists("out")).toBe(false);
+  });
+
+  it("lang can be set in the config file", () => {
+    write("docs/t.txt");
+    write(
+      "ssg.json",
+      JSON.stringify({ input: "docs", output: "out", lang: "de" }),
+    );
+    run("-c", "ssg.json");
+    expect(read("out/t.html")).toContain('<html lang="de">');
+  });
+
+  it("--quiet prints nothing on success but still warns", () => {
+    write("docs/a.md");
+    write("docs/a.txt");
+    const { code, stdout, stderr } = run("-i", "docs", "-o", "out", "-q");
+    expect(code).toBe(0);
+    expect(stdout).toBe("");
+    expect(stderr).toContain("Skipping a.txt");
   });
 });

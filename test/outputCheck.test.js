@@ -12,7 +12,7 @@ describe("Output check", () => {
 
   it("Check for not a output directory", () => {
     expect(() => outputCheck("README.md")).toThrow(
-      "Output path must be a directory: README.md"
+      "Output path must be a directory: README.md",
     );
   });
 });
