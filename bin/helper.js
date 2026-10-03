@@ -315,11 +315,12 @@ async function convertToHtml(
   // Sorting keeps the result (and which file wins a name clash) stable.
   const entries = sources
     .map((abs) => {
-      const rel = path.relative(inputRoot, abs);
-      const relDir = path.dirname(rel).replaceAll(" ", "_");
+      // "/"-separated on every OS: used in messages and as the sort key.
+      const rel = toPosix(path.relative(inputRoot, abs));
+      const relDir = path.posix.dirname(rel).replaceAll(" ", "_");
       const isPage = isPageFile(abs);
       const outName = isPage ? outputFileName(abs) : path.basename(abs);
-      return { abs, rel, isPage, relOut: toPosix(path.join(relDir, outName)) };
+      return { abs, rel, isPage, relOut: path.posix.join(relDir, outName) };
     })
     .sort((a, b) => (a.rel < b.rel ? -1 : a.rel > b.rel ? 1 : 0));
 
